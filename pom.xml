@@ -1,0 +1,92 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.gc.mav</groupId>
+    <artifactId>3FA071_Gruppe5</artifactId>
+    <version>0.0.1</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
+        <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
+
+        <main.class>org.group5.Main</main.class>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.nocrala.tools.texttablefmt</groupId>
+            <artifactId>text-table-formatter</artifactId>
+            <version>1.2.4</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <defaultGoal>clean compile</defaultGoal>
+
+        <plugins>
+
+            <!-- create directories -->
+            <!-- mvn antrun:run@createFolder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven.antrun.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>createFolder</id>
+                        <phase>generate-dirs</phase>
+                        <configuration>
+                            <target>
+                                <mkdir dir="./src/main/java" />
+                                <mkdir dir="./src/main/resources" />
+                                <mkdir dir="./src/test/java" />
+                                <mkdir dir="./src/test/resources" />
+                                <mkdir dir="./target" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- maven compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!--
+                    <testExcludes>
+                        <testExclude>**/*Test.java</testExclude>
+                    </testExcludes>
+                    -->
+                </configuration>
+            </plugin>
+
+            <!-- execute java class
+                  mvn exec:java
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <mainClass>${main.class}</mainClass>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
