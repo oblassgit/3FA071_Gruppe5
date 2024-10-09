@@ -1,4 +1,4 @@
-package main.java.org.group5;
+package org.group5;
 
 import java.util.UUID;
 
