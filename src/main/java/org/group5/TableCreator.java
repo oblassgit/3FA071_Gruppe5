@@ -23,8 +23,33 @@ public class TableCreator {
             System.out.println("Tabelle 'Customer' wurde erfolgreich erstellt.");
 
         } catch (SQLException e) {
-            System.out.println("Fehler beim Erstellen der Tabelle.");
+            System.out.println("Fehler beim Erstellen der Tabelle Customer .");
             e.printStackTrace();
         }
     }
+    public static void createReadingTable(){   
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS Reading ("
+                + "id UUID NOT NULL,"
+                + "customer VARCHAR(100) NOT NULL,"
+                + "comment VARCHAR(1000) NOT NULL,"
+                + "date_of_reading TIMESTAMP NOT NULL,"
+                + "meter_count NOT NULL,"
+                + "meter_id NOT NULL,"
+                + "substitute NOT NULL,"
+                + "PRIMARY KEY (id)"
+                + ")";
+
+            try (Connection connection = Util.getConnection("DbData");
+             Statement statement = connection.createStatement()) {
+
+            statement.execute(createTableSQL);
+            System.out.println("Tabelle 'Customer' wurde erfolgreich erstellt.");
+
+        } catch (SQLException e) {
+            System.out.println("Fehler beim Erstellen der Tabelle Reading.");
+            e.printStackTrace();
+        }
+
+    }
+
 }
