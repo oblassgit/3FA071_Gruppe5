@@ -2,7 +2,7 @@ package org.group5;
 
 import java.time.LocalDate;
 
-public interface IReading {
+public interface IReading extends IID {
     public void setComment(String comment);
 
     public void setCustomer(ICustomer customer);

@@ -2,7 +2,7 @@ package org.group5;
 
 import java.time.LocalDate;
 
-public interface ICustomer {
+public interface ICustomer extends IID {
     public void setFirstName(String firstName);
 
     public void setLastName(String lastName);
