@@ -1,11 +1,12 @@
 package org.group5;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.UUID;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, IOException {
 
         UUID uuid = UUID.randomUUID();
 

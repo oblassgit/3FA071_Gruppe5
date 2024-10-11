@@ -8,15 +8,20 @@ import java.util.Properties;
 public class DatabaseCon implements IDatabaseConnections {
     private Connection connection;
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     @Override
     public IDatabaseConnections openConnections(Properties properties) {
-        String url = properties.getProperty("db_url");
-        String user = properties.getProperty("db_user");
-        String password = properties.getProperty("db_pw");
+
+        final String dburl = properties.getProperty("db_url");
+        final String dbuser = properties.getProperty("db_user");
+        final String dbpw = properties.getProperty("db_pw");
 
         try {
             // Verbindung zur MariaDB 
-            connection = DriverManager.getConnection(url, user, password);
+            connection = DriverManager.getConnection(dburl, dbuser, dbpw);
             System.out.println("Verbindung erfolgreich hergestellt.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -61,7 +66,8 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public void truncateAllTables() {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("TRUNCATE TABLE Reading;");
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 0; " +
+                    "TRUNCATE TABLE Reading; ");
             stmt.execute("TRUNCATE TABLE Customer;");
             System.out.println("Alle Tabellen erfolgreich geleert.");
         } catch (SQLException e) {
