@@ -27,12 +27,13 @@ public class CustomerDao implements ICustomer {
         this.id = id;
     }
 
-    public void deleteCustomer(UUID id) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("delete from Customer as customer where customer.id = ?");
+    public void deleteCustomer() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
         statement.setString(1, id.toString());
 
         statement.execute();
     }
+
 
     @Override
     public void setFirstName(String firstName) {
