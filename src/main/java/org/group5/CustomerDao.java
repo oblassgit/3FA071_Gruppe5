@@ -1,21 +1,35 @@
 package org.group5;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Properties;
 import java.util.UUID;
 
 public class CustomerDao implements ICustomer {
 
     private UUID id;
 
-    private Connection connection = Util.getConnection("DbData");
+    private final Properties properties = new Properties();
+
+    private DatabaseCon databaseCon;
 
 
-    public CustomerDao(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) throws SQLException {
+    private Connection connection;
+
+
+    public CustomerDao(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) throws SQLException, IOException {
+        properties.load(new FileReader("src/main/resources/DbData.properties"));
+
+        databaseCon = new DatabaseCon();
+        databaseCon.openConnections(properties);
+        connection = databaseCon.getConnection();
         PreparedStatement statement = connection.prepareStatement("insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
         statement.setString(1, id.toString());
         statement.setString(2, firstName);
