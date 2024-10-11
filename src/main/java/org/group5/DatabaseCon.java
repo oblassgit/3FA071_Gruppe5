@@ -8,6 +8,7 @@ import java.util.Properties;
 public class DatabaseCon implements IDatabaseConnections {
     private Connection connection;
 
+    @Override
     public Connection getConnection() {
         return connection;
     }
@@ -31,7 +32,7 @@ public class DatabaseCon implements IDatabaseConnections {
     }
 
     @Override
-    public void createAllTabes() {
+    public void createAllTables() {
         try (Statement stmt = connection.createStatement()) {
       String createCustomerTable = "CREATE TABLE IF NOT EXISTS Customer ("
                 + "id UUID NOT NULL, "

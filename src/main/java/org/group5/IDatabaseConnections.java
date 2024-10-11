@@ -1,12 +1,15 @@
 package org.group5;
 
+import java.sql.Connection;
 import java.util.Properties;
 
 public interface IDatabaseConnections {
 
+    public Connection getConnection();
+
     public IDatabaseConnections openConnections(Properties properties);
 
-    public void createAllTabes();
+    public void createAllTables();
 
     public void truncateAllTables();
 
