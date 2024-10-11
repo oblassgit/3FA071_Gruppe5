@@ -30,6 +30,14 @@
             <artifactId>mariadb-java-client</artifactId>
             <version>3.3.3</version> <!-- oder die neueste Version -->
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

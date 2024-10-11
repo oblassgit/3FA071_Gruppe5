@@ -63,11 +63,29 @@ public class CustomerDao implements ICustomer {
 
     @Override
     public void setBirthDate(LocalDate birthDate) {
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("update Customer set birth_date = ? where id = ?");
+            statement.setDate(1, Date.valueOf(birthDate));
+            statement.setString(2, id.toString());
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Override
     public void setGender(Gender gender) {
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("update Customer set gender = ? where id = ?");
+            statement.setString(1, gender.toString());
+            statement.setString(2, id.toString());
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -118,12 +136,48 @@ public class CustomerDao implements ICustomer {
 
     @Override
     public LocalDate getBirthDate() {
-        return null;
+        PreparedStatement statement;
+        LocalDate birthDate = null;
+
+        try {
+            statement = connection.prepareStatement("select birth_date from Customer where id = ?");
+            statement.setString(1, String.valueOf(id));
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                birthDate = resultSet.getDate("birth_date").toLocalDate();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return birthDate;
+
     }
 
     @Override
     public Gender getGender() {
-        return null;
+        PreparedStatement statement;
+        Gender gender = Gender.U;
+
+        try {
+            statement = connection.prepareStatement("select gender from Customer where id = ?");
+            statement.setString(1, String.valueOf(id));
+            statement.execute();
+            ResultSet resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                gender = Gender.valueOf(resultSet.getString("gender"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return gender;
+
     }
 
     @Override
