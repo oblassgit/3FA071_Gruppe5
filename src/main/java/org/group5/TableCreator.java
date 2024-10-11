@@ -34,7 +34,8 @@ public class TableCreator {
                 + "comment VARCHAR(1000) NOT NULL,"
                 + "date_of_reading TIMESTAMP NOT NULL,"
                 + "meter_count INT NOT NULL,"
-                + "meter_id VARCHAR(100) NOT NULL," //todo: find some way to do the enum in sql
+                + "meter_id VARCHAR(100) NOT NULL,"
+                + "kind_of_meter ENUM('HEIZUNG', 'STROM', 'WASSER', 'UNBEKANNT'),"
                 + "substitute BOOL NOT NULL,"
                 + "FOREIGN KEY (customer) references Customer(id),"
                 + "PRIMARY KEY (id)"
