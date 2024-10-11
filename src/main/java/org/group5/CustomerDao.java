@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -32,14 +33,26 @@ public class CustomerDao {
 
     public void deleteCustomer(Customer customer) throws SQLException {
 
-        PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
-        statement.setString(1, customer.getId().toString());
-        statement.execute();
+        try {
+            Statement startTransactionStatement = connection.createStatement();
+            startTransactionStatement.executeQuery("start transaction");
 
-        PreparedStatement statement1 = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
-        statement1.setString(1, customer.getId().toString());
-        statement1.executeUpdate();
+            PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
+            statement.setString(1, customer.getId().toString());
+            statement.execute();
 
+            PreparedStatement statement1 = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
+            statement1.setString(1, customer.getId().toString());
+            statement1.executeUpdate();
+
+            Statement commitTransactionStatement = connection.createStatement();
+            commitTransactionStatement.executeQuery("commit");
+        } catch (SQLException e) {
+            Statement rollbackStatement = connection.createStatement();
+            rollbackStatement.executeQuery("rollback");
+            System.err.println("Transaction failed! Rolled back changes.");
+            e.printStackTrace();
+        }
     }
 
     public Customer getCustomer(UUID id) throws SQLException {

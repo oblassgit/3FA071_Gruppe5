@@ -45,14 +45,14 @@ public class DatabaseCon implements IDatabaseConnections {
                 
                 String createReadingTable = "CREATE TABLE IF NOT EXISTS Reading ("
                 + "id UUID NOT NULL,"
-                + "customer UUID NOT NULL,"
+                + "customer_id UUID,"
                 + "comment VARCHAR(1000) NOT NULL,"
                 + "date_of_reading TIMESTAMP NOT NULL,"
                 + "meter_count INT NOT NULL,"
                 + "meter_id VARCHAR(100) NOT NULL,"
                 + "kind_of_meter ENUM('HEIZUNG', 'STROM', 'WASSER', 'UNBEKANNT'),"
                 + "substitute BOOL NOT NULL,"
-                + "FOREIGN KEY (customer) references Customer(id),"
+                + "FOREIGN KEY (customer_id) references Customer(id),"
                 + "PRIMARY KEY (id)"
                 + ")";
             stmt.execute(createCustomerTable);

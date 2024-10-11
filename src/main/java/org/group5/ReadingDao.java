@@ -48,7 +48,12 @@ public class ReadingDao {
         ResultSet resultSet = statement.executeQuery();
 
         if (resultSet.next()) {
-            return new Reading(id, resultSet.getString("comment"), new CustomerDao(connection).getCustomer(UUID.fromString(resultSet.getString("customer_id"))), resultSet.getDate("date_of_reading").toLocalDate(),
+            Customer customer = null;
+
+            if (resultSet.getString("customer_id") != null) {
+                customer = new CustomerDao(connection).getCustomer(UUID.fromString(resultSet.getString("customer_id")));
+            }
+            return new Reading(id, resultSet.getString("comment"), customer, resultSet.getDate("date_of_reading").toLocalDate(),
                     KindOfMeter.valueOf(resultSet.getString("kind_of_meter")), resultSet.getDouble("meter_count"),
                     resultSet.getString("meter_id"), resultSet.getBoolean("substitute"));
         }
