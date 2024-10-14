@@ -92,6 +92,7 @@ public class CustomerDao {
         statement.setString(2, customer.getLastName());
         statement.setDate(3, Date.valueOf(customer.getBirthDate()));
         statement.setString(4, customer.getGender().toString());
+        statement.setString(5, customer.getId().toString());
 
         statement.executeUpdate();
     }
