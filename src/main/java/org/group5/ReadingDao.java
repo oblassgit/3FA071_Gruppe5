@@ -1,294 +1,64 @@
 package org.group5;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.UUID;
 
-public class ReadingDao implements IReading {
-    private UUID id;
-    private Connection connection = Util.getConnection("DbData");
+public class ReadingDao {
 
-    public ReadingDao(UUID id, String comment, ICustomer customer, LocalDate dateOfReading, KindOfMeter kindOfMeter,
-            Double meterCount, String meterId, Boolean substitute) throws SQLException {
+    Connection connection;
+
+    public ReadingDao(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void createReading(Reading reading) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(
                 "insert into Reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        statement.setString(1, id.toString());
-        statement.setString(2, comment);
-        statement.setString(3, customer.getId().toString());
-        statement.setDate(4, Date.valueOf(dateOfReading));
-        statement.setString(5, kindOfMeter.toString());
-        statement.setDouble(6, meterCount);
-        statement.setString(7, meterId);
-        statement.setBoolean(8, substitute);
+        statement.setString(1, reading.getId().toString());
+        statement.setString(2, reading.getComment());
+        statement.setString(3, reading.getCustomer().getId().toString());
+        statement.setDate(4, Date.valueOf(reading.getDateOfReading()));
+        statement.setString(5, reading.getKindOfMeter().toString());
+        statement.setDouble(6, reading.getMeterCount());
+        statement.setString(7, reading.getMeterId());
+        statement.setBoolean(8, reading.getSubstitute());
         statement.execute();
 
-        this.id = id;
     }
 
-    public void deleteCustomer() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("delete from Reading where id = ?");
-        statement.setString(1, id.toString());
+    public void updateReading(Reading reading) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("update Reading set comment = ?, customer_id = ?, " +
+                "date_of_reading = ?, kind_of_meter = ?, meter_count = ?, meter_id = ?, substitute = ? where id = ?");
 
-        statement.execute();
+
+
+        statement.executeUpdate();
     }
 
-    @Override
-    public void setComment(String comment) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set comment = ? where id = ?");
-            statement.setString(1, comment);
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
 
-    @Override
-    public void setCustomer(ICustomer customer) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set customer_id = ? where id = ?");
-            statement.setString(1, customer.getId().toString());
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
+    public Reading getReading(UUID id) throws SQLException, IOException {
+        PreparedStatement statement = connection.prepareStatement("select * from Reading where id = ?");
 
-    @Override
-    public void setDateOfReading(LocalDate dateOfReading) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set date_of_reading = ? where id = ?");
-            statement.setDate(1, Date.valueOf(dateOfReading));
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
+        statement.setString(1, String.valueOf(id));
+        ResultSet resultSet = statement.executeQuery();
 
-    @Override
-    public void setKindOfMeter(KindOfMeter kindOfMeter) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set kind_of_meter = ? where id = ?");
-            statement.setString(1, kindOfMeter.toString());
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
+        if (resultSet.next()) {
+            Customer customer = null;
 
-    @Override
-    public void setMeterCount(Double meterCount) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set meter_count = ? where id = ?");
-            statement.setDouble(1, meterCount);
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
-
-    @Override
-    public void setMeterId(String meterId) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set meter_id = ? where id = ?");
-            statement.setString(1, meterId);
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
-
-    @Override
-    public void setSubstitute(Boolean substitute) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Reading set substitute = ? where id = ?");
-            statement.setBoolean(1, substitute);
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    };
-
-    @Override
-    public String getComment() {
-        PreparedStatement statement;
-        String comment = "";
-
-        try {
-            statement = connection.prepareStatement("select comment from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                comment = resultSet.getString("comment");
+            if (resultSet.getString("customer_id") != null) {
+                customer = new CustomerDao(connection).getCustomer(UUID.fromString(resultSet.getString("customer_id")));
             }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return new Reading(id, resultSet.getString("comment"), customer, resultSet.getDate("date_of_reading").toLocalDate(),
+                    KindOfMeter.valueOf(resultSet.getString("kind_of_meter")), resultSet.getDouble("meter_count"),
+                    resultSet.getString("meter_id"), resultSet.getBoolean("substitute"));
         }
 
-        return comment;
-    };
+        return null;
+    }
 
-    @Override
-    public ICustomer getCustomer() {
-        PreparedStatement statement;
-        ICustomer customer = null;
-
-        try {
-            statement = connection.prepareStatement(
-                    "select c.* from Customer c join Reading r on c.id = r.customer_id where r.id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                customer = resultSet.getObject("", ICustomer.class);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return customer;
-    };
-
-    @Override
-    public LocalDate getDateOfReading() {
-        PreparedStatement statement;
-        LocalDate dateOfReading = null;
-
-        try {
-            statement = connection.prepareStatement("select date_of_reading from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                dateOfReading = resultSet.getDate("date_of_reading").toLocalDate();
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return dateOfReading;
-    };
-
-    @Override
-    public KindOfMeter getKindOfMeter() {
-        PreparedStatement statement;
-        KindOfMeter kindOfMeter = null;
-
-        try {
-            statement = connection.prepareStatement("select kind_of_meter from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                kindOfMeter = KindOfMeter.valueOf(resultSet.getString("kind_of_meter"));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return kindOfMeter;
-    };
-
-    @Override
-    public Double getMeterCount() {
-        PreparedStatement statement;
-        Double meterCount = null;
-
-        try {
-            statement = connection.prepareStatement("select meter_count from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                meterCount = resultSet.getDouble("meter_count");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return meterCount;
-    };
-
-    @Override
-    public String getMeterId() {
-        PreparedStatement statement;
-        String meterId = null;
-
-        try {
-            statement = connection.prepareStatement("select meter_id from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                meterId = resultSet.getString("meter_id");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return meterId;
-    };
-
-    @Override
-    public Boolean getSubstitute() {
-        PreparedStatement statement;
-        Boolean substitute = null;
-
-        try {
-            statement = connection.prepareStatement("select substitute from Reading where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                substitute = resultSet.getBoolean("substitute");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return substitute;
-    };
-
-    @Override
-    public String printDateOfReading() {
-        String dateOfReadingString = getDateOfReading().toString();
-        System.out.println(dateOfReadingString);
-        return dateOfReadingString;
-    };
-
-    @Override
-    public UUID getId() {
-        return this.id;
-    };
-
-    @Override
-    public void setId(UUID id) {
-        this.id = id;
-    };
 }

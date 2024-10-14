@@ -1,207 +1,98 @@
 package org.group5;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Properties;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class CustomerDao implements ICustomer {
-
-    private UUID id;
-
-    private final Properties properties = new Properties();
-
-    private DatabaseCon databaseCon;
-
+public class CustomerDao {
 
     private Connection connection;
 
 
-    public CustomerDao(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) throws SQLException, IOException {
-        properties.load(new FileReader("src/main/resources/DbData.properties"));
+    public CustomerDao(Connection con) {
+        connection = con;
+    }
 
-        databaseCon = new DatabaseCon();
-        databaseCon.openConnections(properties);
-        connection = databaseCon.getConnection();
+    public void createCustomer(Customer customer) throws SQLException {
+
         PreparedStatement statement = connection.prepareStatement("insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
-        statement.setString(1, id.toString());
-        statement.setString(2, firstName);
-        statement.setString(3, lastName);
-        statement.setDate(4, Date.valueOf(birthDate));
-        statement.setString(5, gender.toString());
+        statement.setString(1, customer.getId().toString());
+        statement.setString(2, customer.getFirstName());
+        statement.setString(3, customer.getLastName());
+        statement.setDate(4, Date.valueOf(customer.getBirthDate()));
+        statement.setString(5, customer.getGender().toString());
         statement.execute();
 
-        this.id = id;
     }
 
-    public void deleteCustomer() throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
-        statement.setString(1, id.toString());
+    public void deleteCustomer(Customer customer) throws SQLException {
 
-        statement.execute();
-    }
-
-
-    @Override
-    public void setFirstName(String firstName) {
-        PreparedStatement statement;
         try {
-            statement = connection.prepareStatement("update Customer set first_name = ? where id = ?");
-            statement.setString(1, firstName);
-            statement.setString(2, id.toString());
+            Statement startTransactionStatement = connection.createStatement();
+            startTransactionStatement.executeQuery("start transaction");
+
+            PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
+            statement.setString(1, customer.getId().toString());
             statement.execute();
+
+            PreparedStatement statement1 = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
+            statement1.setString(1, customer.getId().toString());
+            statement1.executeUpdate();
+
+            Statement commitTransactionStatement = connection.createStatement();
+            commitTransactionStatement.executeQuery("commit");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Statement rollbackStatement = connection.createStatement();
+            rollbackStatement.executeQuery("rollback");
+            System.err.println("Transaction failed! Rolled back changes.");
+            e.printStackTrace();
         }
     }
 
-    @Override
-    public void setLastName(String lastName) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Customer set last_name = ? where id = ?");
-            statement.setString(1, lastName);
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public Customer getCustomer(UUID id) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("select * from Customer where id = ?");
+
+        statement.setString(1, String.valueOf(id));
+        ResultSet resultSet = statement.executeQuery();
+
+        if (resultSet.next()) {
+            return new Customer(id, resultSet.getString("first_name"), resultSet.getString("last_name"),
+                    resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender")));
         }
 
+        return null;
     }
 
-    @Override
-    public void setBirthDate(LocalDate birthDate) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Customer set birth_date = ? where id = ?");
-            statement.setDate(1, Date.valueOf(birthDate));
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public List<Customer> getAllCustomers() throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("select * from Customer");
+
+        ResultSet resultSet = statement.executeQuery();
+
+        ArrayList<Customer> list = new ArrayList<>();
+
+        while (resultSet.next()) {
+            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"), resultSet.getString("last_name"),
+                    resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender"))));
         }
 
+        return list;
     }
 
-    @Override
-    public void setGender(Gender gender) {
-        PreparedStatement statement;
-        try {
-            statement = connection.prepareStatement("update Customer set gender = ? where id = ?");
-            statement.setString(1, gender.toString());
-            statement.setString(2, id.toString());
-            statement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void updateCustomer(Customer customer) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
+                "birth_date = ?, gender = ? where id = ?");
 
-    }
+        statement.setString(1, customer.getFirstName());
+        statement.setString(2, customer.getLastName());
+        statement.setDate(3, Date.valueOf(customer.getBirthDate()));
+        statement.setString(4, customer.getGender().toString());
 
-    @Override
-    public String getFirstName() {
-        PreparedStatement statement;
-        String name = "";
-
-        try {
-            statement = connection.prepareStatement("select first_name from Customer where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                name = resultSet.getString("first_name");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        return name;
-
-    }
-
-    @Override
-    public String getLastName() {
-        PreparedStatement statement;
-        String name = "";
-
-        try {
-            statement = connection.prepareStatement("select last_name from Customer where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                name = resultSet.getString("last_name");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        return name;
-    }
-
-    @Override
-    public LocalDate getBirthDate() {
-        PreparedStatement statement;
-        LocalDate birthDate = null;
-
-        try {
-            statement = connection.prepareStatement("select birth_date from Customer where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                birthDate = resultSet.getDate("birth_date").toLocalDate();
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        return birthDate;
-
-    }
-
-    @Override
-    public Gender getGender() {
-        PreparedStatement statement;
-        Gender gender = Gender.U;
-
-        try {
-            statement = connection.prepareStatement("select gender from Customer where id = ?");
-            statement.setString(1, String.valueOf(id));
-            statement.execute();
-            ResultSet resultSet = statement.getResultSet();
-            if (resultSet.next()) {
-                gender = Gender.valueOf(resultSet.getString("gender"));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        return gender;
-
-    }
-
-    @Override
-    public UUID getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(UUID id) {
-        this.id = id;
+        statement.executeUpdate();
     }
 }
