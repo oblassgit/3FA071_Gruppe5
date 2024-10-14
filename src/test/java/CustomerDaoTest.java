@@ -94,6 +94,7 @@ public class CustomerDaoTest {
 
     @AfterClass
     public static void after() {
+        databaseCon.truncateAllTables();
         databaseCon.closeConnections();
     }
 }
