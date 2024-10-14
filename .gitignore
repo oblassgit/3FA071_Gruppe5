@@ -210,3 +210,4 @@ buildNumber.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/git,java,macos,maven,intellij
 .vscode/settings.json
+src/main/resources/DbData.properties
