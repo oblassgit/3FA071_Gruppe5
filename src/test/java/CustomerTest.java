@@ -4,13 +4,11 @@ import org.group5.Gender;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.mariadb.jdbc.export.ExceptionFactory.SqlExceptionFactory;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.UUID;
@@ -32,7 +30,7 @@ public class CustomerTest {
     }
 
     @Test
-    public void testSettersAndGetters() throws IOException, SQLException {
+    public void testSettersAndGetters() {
         LocalDate TestDate = LocalDate.now();
 
         customer.setFirstName("Skidadel");
