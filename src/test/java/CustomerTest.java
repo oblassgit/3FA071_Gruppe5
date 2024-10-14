@@ -1,7 +1,10 @@
 import org.group5.Customer;
 import org.group5.DatabaseCon;
 import org.group5.Gender;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.mariadb.jdbc.export.ExceptionFactory.SqlExceptionFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,24 +20,37 @@ public class CustomerTest {
     static DatabaseCon databaseCon = new DatabaseCon();
     static Customer customer;
 
-    @Test
-    public void Getters() throws IOException, SQLException {
+    @Before
+    public void before() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
         databaseCon.openConnections(properties);
-
         customer = new Customer(UUID.randomUUID(), "Schwanzus", "Longus", LocalDate.of(2005, 6, 9), Gender.M);
+        databaseCon.removeAllTables();
+        databaseCon.createAllTables();
+        databaseCon.truncateAllTables();
+    }
 
-        LocalDate.of(2005, 6, 9);
+    @Test
+    public void testSettersAndGetters() throws IOException, SQLException {
+        LocalDate TestDate = LocalDate.now();
+
         customer.setFirstName("Skidadel");
         customer.setLastName("Skidudel");
-        customer.setBirthDate(LocalDate.now());
+        customer.setBirthDate(TestDate);
         customer.setGender(Gender.D);
 
         assertEquals("Skidadel", customer.getFirstName());
         assertEquals("Skidudel", customer.getLastName());
-        assertEquals(LocalDate.now(), customer.getBirthDate());
+        assertEquals(TestDate, customer.getBirthDate());
         assertEquals(Gender.D, customer.getGender());
+
+    }
+
+    @AfterClass
+    public static void after() {
+        databaseCon.truncateAllTables();
+        databaseCon.closeConnections();
 
     }
 
