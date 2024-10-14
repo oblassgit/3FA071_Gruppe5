@@ -81,6 +81,7 @@ public class ReadingTest {
 
     @AfterClass
     public static void after() {
+        databaseCon.truncateAllTables();
         databaseCon.closeConnections();
     }
 }
