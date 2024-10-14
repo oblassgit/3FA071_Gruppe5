@@ -7,7 +7,6 @@ import org.group5.Reading;
 import org.group5.ReadingDao;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileReader;
@@ -45,8 +44,41 @@ public class CustomerDaoTest {
 
     @Test
     public void testCreateCustomer() throws SQLException {
+        Customer newCustomer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
+
+        customerDao.createCustomer(newCustomer);
+    }
+
+    @Test
+    public void testGetCustomer() throws SQLException {
         assert customerDao.getCustomer(customer.getId()).getId() == customer.getId();
 
+    }
+
+    @Test
+    public void testGetAllCustomer() throws SQLException {
+        databaseCon.truncateAllTables();
+
+        Customer customer1 = new Customer(UUID.randomUUID(), "Herbert", "Zwerg", LocalDate.now(), Gender.M);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
+        Customer customer3 = new Customer(UUID.randomUUID(), "Marty", "McFly", LocalDate.now(), Gender.M);
+        Customer customer4 = new Customer(UUID.randomUUID(), "Max", "Mustermann", LocalDate.now(), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+        customerDao.createCustomer(customer3);
+        customerDao.createCustomer(customer4);
+
+        assert customerDao.getAllCustomers().size() == 4;
+    }
+
+    @Test
+    public void testUpdateCustomer() throws SQLException {
+        assert customerDao.getCustomer(customer.getId()).getGender() == Gender.M;
+        Customer updatedCustomer = new Customer(customer.getId(), "Sigrid", "Blass", customer.getBirthDate(), Gender.W);
+        customerDao.updateCustomer(updatedCustomer);
+
+        assert customerDao.getCustomer(updatedCustomer.getId()).getGender() == Gender.W;
     }
 
     @Test
