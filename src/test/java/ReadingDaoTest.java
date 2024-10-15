@@ -10,7 +10,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileReader;
-import java.io.IO;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -22,9 +21,13 @@ public class ReadingDaoTest {
 
     static DatabaseCon databaseCon = new DatabaseCon();
 
+    static Customer customer;
+    static CustomerDao customerDao;
+    static ReadingDao readingDao;
+
 
     @BeforeClass
-    public static void before() throws IOException {
+    public static void before() throws IOException, SQLException {
 
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
@@ -33,64 +36,43 @@ public class ReadingDaoTest {
         databaseCon.createAllTables();
         databaseCon.truncateAllTables();
 
+        customer = new Customer(UUID.randomUUID(), "Donald", "Duck", LocalDate.now(), Gender.M);
+        customerDao = new CustomerDao(databaseCon.getConnection());
+        customerDao.createCustomer(customer);
+        readingDao = new ReadingDao(databaseCon.getConnection());
+
+
     }
 
     @Test
     public void testCreateReading() throws SQLException, IOException {
-        Customer customer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
-
-        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-        customerDao.createCustomer(customer);
-
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-
-        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
-
-
         assert readingDao.getReading(reading.getId()).getId() == reading.getId();
 
     }
 
     @Test
     public void testUpdateReading() throws SQLException, IOException {
-        Customer customer = new Customer(UUID.randomUUID(), "Donald", "Duck", LocalDate.now(), Gender.M);
-        
-        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-        customerDao.createCustomer(customer);
-
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-
-        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
-
         Reading updatedReading = new Reading(reading.getId(), "comment", customer, LocalDate.now(), KindOfMeter.WASSER, 12.0, "id", false);
-
         readingDao.updateReading(updatedReading);
-
         assert readingDao.getReading(updatedReading.getId()).getKindOfMeter() == KindOfMeter.WASSER;
     }
 
     @Test
     public void testGetReading() throws SQLException, IOException {
-        Customer customer = new Customer(UUID.randomUUID(), "Donald", "Duck", LocalDate.now(), Gender.M);
-
-        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-        customerDao.createCustomer(customer);
-
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-
-        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
-
         readingDao.getReading(reading.getId());
-
         assert readingDao.getReading(reading.getId()).getId() == reading.getId();
 
     }
 
     @AfterClass
     public static void after() {
+        databaseCon.truncateAllTables();
         databaseCon.closeConnections();
     }
 }
