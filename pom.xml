@@ -7,6 +7,19 @@
     <artifactId>3FA071_Gruppe5</artifactId>
     <version>0.0.1</version>
 
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+                <gebEnv>test</gebEnv>
+                <jacoco.skip>false</jacoco.skip>
+                <maven.test.skip>false</maven.test.skip>
+                <skip.unit.tests>false</skip.unit.tests>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -16,6 +29,8 @@
         <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
 
         <main.class>org.group5.Main</main.class>
+
+        <jacoco.version>0.8.8</jacoco.version>
     </properties>
 
     <dependencies>
@@ -41,7 +56,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean compile</defaultGoal>
+        <defaultGoal>clean compile install</defaultGoal>
 
         <plugins>
 
@@ -63,11 +78,11 @@
                         <phase>generate-dirs</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="./src/main/java" />
-                                <mkdir dir="./src/main/resources" />
-                                <mkdir dir="./src/test/java" />
-                                <mkdir dir="./src/test/resources" />
-                                <mkdir dir="./target" />
+                                <mkdir dir="./src/main/java"/>
+                                <mkdir dir="./src/main/resources"/>
+                                <mkdir dir="./src/test/java"/>
+                                <mkdir dir="./src/test/resources"/>
+                                <mkdir dir="./target"/>
                             </target>
                         </configuration>
                         <goals>
@@ -106,6 +121,63 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <skip>false</skip>
+                    <rules>
+                        <rule>
+                            <element>CLASS</element>
+                            <excludes>
+                                <exclude>*Test</exclude>
+                            </excludes>
+                            <limits>
+                                <limit>
+                                    <counter>LINE</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>0.50</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <!--<execution>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <instructionRatio>100</instructionRatio>
+                                <branchRatio>95</branchRatio>
+                                <lineRatio>90</lineRatio>
+                                <methodRatio>90</methodRatio>
+                                <classRatio>90</classRatio>
+                            </rules>
+                        </configuration>
+                    </execution>-->
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -113,8 +185,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>3.5.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
             </plugin>
         </plugins>
     </reporting>
