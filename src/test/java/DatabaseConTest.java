@@ -1,5 +1,3 @@
-import static org.junit.Assert.assertArrayEquals;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -9,12 +7,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.UUID;
-
 import org.group5.Customer;
 import org.group5.CustomerDao;
 import org.group5.DatabaseCon;
 import org.group5.Gender;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
