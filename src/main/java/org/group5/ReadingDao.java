@@ -35,6 +35,16 @@ public class ReadingDao {
         PreparedStatement statement = connection.prepareStatement("update Reading set comment = ?, customer_id = ?, " +
                 "date_of_reading = ?, kind_of_meter = ?, meter_count = ?, meter_id = ?, substitute = ? where id = ?");
 
+        statement.setString(1, reading.getComment());
+        statement.setString(2, reading.getCustomer().getId().toString());
+        statement.setDate(3, Date.valueOf(reading.getDateOfReading()));
+        statement.setString(4, reading.getKindOfMeter().toString());
+        statement.setDouble(5, reading.getMeterCount());
+        statement.setString(6, reading.getMeterId());
+        statement.setBoolean(7, reading.getSubstitute());
+        statement.setString(8, reading.getId().toString());
+
+
 
 
         statement.executeUpdate();
