@@ -30,7 +30,7 @@
 
         <main.class>org.group5.Main</main.class>
 
-        <jacoco.version>0.8.8</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <dependencies>
