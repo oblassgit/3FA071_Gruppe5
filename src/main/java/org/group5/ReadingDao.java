@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 public class ReadingDao {
@@ -17,17 +18,39 @@ public class ReadingDao {
     }
 
     public void createReading(Reading reading) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(
-                "insert into Reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        statement.setString(1, reading.getId().toString());
-        statement.setString(2, reading.getComment());
-        statement.setString(3, reading.getCustomer().getId().toString());
-        statement.setDate(4, Date.valueOf(reading.getDateOfReading()));
-        statement.setString(5, reading.getKindOfMeter().toString());
-        statement.setDouble(6, reading.getMeterCount());
-        statement.setString(7, reading.getMeterId());
-        statement.setBoolean(8, reading.getSubstitute());
-        statement.execute();
+
+        Customer customer = (Customer) reading.getCustomer();
+        CustomerDao customerDao = new CustomerDao(connection);
+
+        try {
+            Statement startTransactionStatement = connection.createStatement();
+            startTransactionStatement.executeQuery("start transaction");
+            
+            if (customerDao.getCustomer(customer.getId()) == null) {
+
+                customerDao.createCustomer(customer);
+
+            }
+            PreparedStatement statement = connection.prepareStatement(
+            "insert into Reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            statement.setString(1, reading.getId().toString());
+            statement.setString(2, reading.getComment());
+            statement.setString(3, reading.getCustomer().getId().toString());
+            statement.setDate(4, Date.valueOf(reading.getDateOfReading()));
+            statement.setString(5, reading.getKindOfMeter().toString());
+            statement.setDouble(6, reading.getMeterCount());
+            statement.setString(7, reading.getMeterId());
+            statement.setBoolean(8, reading.getSubstitute());
+            statement.execute();
+
+            Statement commitTransactionStatement = connection.createStatement();
+            commitTransactionStatement.executeQuery("commit");
+        } catch (SQLException e) {
+            Statement rollbackStatement = connection.createStatement();
+            rollbackStatement.executeQuery("rollback");
+            System.err.println("Transaction failed! Rolled back changes.");
+            e.printStackTrace();
+        }
 
     }
 
