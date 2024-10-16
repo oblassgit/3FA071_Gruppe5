@@ -34,7 +34,7 @@ public class DatabaseConTest {
         assert con.isClosed() == false;
 
         dbCon.createAllTables();
-        statement = con.prepareStatement("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_TYPE = 'BASE TABLE'");
+        statement = con.prepareStatement("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_TYPE = 'BASE TABLE' and (TABLE_NAME = 'customer' OR TABLE_NAME = 'reading')");
         resultSet = statement.executeQuery();
         assert resultSet.next();
 
