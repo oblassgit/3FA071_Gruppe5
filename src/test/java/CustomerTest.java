@@ -1,6 +1,6 @@
-import org.group5.Customer;
-import org.group5.DatabaseCon;
-import org.group5.Gender;
+import dev.hv.model.Customer;
+import dev.hv.db.DatabaseCon;
+import dev.hv.enums.Gender;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,8 @@
-package org.group5;
+package dev.hv.model;
+
+import dev.hv.enums.KindOfMeter;
+import dev.hv.model.interfaces.ICustomer;
+import dev.hv.model.interfaces.IReading;
 
 import java.time.LocalDate;
 import java.util.UUID;

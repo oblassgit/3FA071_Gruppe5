@@ -1,4 +1,7 @@
-package org.group5;
+package dev.hv.db;
+
+import dev.hv.model.Customer;
+import dev.hv.enums.Gender;
 
 import java.sql.Connection;
 import java.sql.Date;

@@ -1,4 +1,8 @@
-package org.group5;
+package dev.hv.db;
+
+import dev.hv.model.Customer;
+import dev.hv.enums.KindOfMeter;
+import dev.hv.model.Reading;
 
 import java.io.IOException;
 import java.sql.Connection;

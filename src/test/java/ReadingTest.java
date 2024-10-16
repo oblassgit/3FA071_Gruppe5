@@ -1,8 +1,8 @@
-import org.group5.Customer;
-import org.group5.DatabaseCon;
-import org.group5.Gender;
-import org.group5.KindOfMeter;
-import org.group5.Reading;
+import dev.hv.model.Customer;
+import dev.hv.db.DatabaseCon;
+import dev.hv.enums.Gender;
+import dev.hv.enums.KindOfMeter;
+import dev.hv.model.Reading;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
