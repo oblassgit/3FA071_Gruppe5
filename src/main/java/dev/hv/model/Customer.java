@@ -1,4 +1,7 @@
-package org.group5;
+package dev.hv.model;
+
+import dev.hv.enums.Gender;
+import dev.hv.model.interfaces.ICustomer;
 
 import java.time.LocalDate;
 import java.util.UUID;

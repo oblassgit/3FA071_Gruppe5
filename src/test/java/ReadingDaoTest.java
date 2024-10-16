@@ -1,10 +1,10 @@
-import org.group5.Customer;
-import org.group5.CustomerDao;
-import org.group5.DatabaseCon;
-import org.group5.Gender;
-import org.group5.KindOfMeter;
-import org.group5.Reading;
-import org.group5.ReadingDao;
+import dev.hv.model.Customer;
+import dev.hv.db.CustomerDao;
+import dev.hv.db.DatabaseCon;
+import dev.hv.enums.Gender;
+import dev.hv.enums.KindOfMeter;
+import dev.hv.model.Reading;
+import dev.hv.db.ReadingDao;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

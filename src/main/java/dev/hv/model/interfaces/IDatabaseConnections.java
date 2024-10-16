@@ -1,4 +1,4 @@
-package org.group5;
+package dev.hv.model.interfaces;
 
 import java.sql.Connection;
 import java.util.Properties;

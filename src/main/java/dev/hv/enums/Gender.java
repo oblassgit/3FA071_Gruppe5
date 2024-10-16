@@ -1,4 +1,4 @@
-package org.group5;
+package dev.hv.enums;
 
 public enum Gender {
     D,

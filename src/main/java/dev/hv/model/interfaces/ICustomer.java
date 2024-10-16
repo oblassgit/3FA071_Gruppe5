@@ -1,4 +1,6 @@
-package org.group5;
+package dev.hv.model.interfaces;
+
+import dev.hv.enums.Gender;
 
 import java.time.LocalDate;
 
