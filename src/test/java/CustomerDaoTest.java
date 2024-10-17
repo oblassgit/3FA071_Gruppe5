@@ -9,6 +9,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -51,8 +53,7 @@ public class CustomerDaoTest {
 
     @Test
     public void testGetCustomer() throws SQLException {
-        assert customerDao.getCustomer(customer.getId()).getId() == customer.getId();
-
+        assertEquals(customer.getId(), customerDao.getCustomer(customer.getId()).getId());
     }
 
     @Test
@@ -69,16 +70,16 @@ public class CustomerDaoTest {
         customerDao.createCustomer(customer3);
         customerDao.createCustomer(customer4);
 
-        assert customerDao.getAllCustomers().size() == 4;
+        assertEquals(customerDao.getAllCustomers().size(), 4);
     }
 
     @Test
     public void testUpdateCustomer() throws SQLException {
-        assert customerDao.getCustomer(customer.getId()).getGender() == Gender.M;
+        assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.M);
         Customer updatedCustomer = new Customer(customer.getId(), "Sigrid", "Blass", customer.getBirthDate(), Gender.W);
         customerDao.updateCustomer(updatedCustomer);
 
-        assert customerDao.getCustomer(updatedCustomer.getId()).getGender() == Gender.W;
+        assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.W);
     }
 
     @Test
@@ -90,6 +91,7 @@ public class CustomerDaoTest {
 
         customerDao.deleteCustomer(customer);
         assert readingDao.getReading(reading.getId()).getCustomer() == null;
+        assertEquals(readingDao.getReading(reading.getId()).getCustomer(), null);
     }
 
     @AfterClass

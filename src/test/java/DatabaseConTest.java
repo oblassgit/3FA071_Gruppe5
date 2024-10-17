@@ -1,3 +1,7 @@
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -31,27 +35,27 @@ public class DatabaseConTest {
 
         dbCon.openConnections(properties);
         Connection con = dbCon.getConnection();
-        assert con.isClosed() == false;
+        assertFalse(con.isClosed());
 
         dbCon.createAllTables();
         statement = con.prepareStatement("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_TYPE = 'BASE TABLE' and (TABLE_NAME = 'customer' OR TABLE_NAME = 'reading')");
         resultSet = statement.executeQuery();
-        assert resultSet.next();
+        assertTrue(resultSet.next());
 
         Customer customer = new Customer(UUID.randomUUID(), "Peter", "Griffon", LocalDate.now(), Gender.M);
         CustomerDao customerDao = new CustomerDao(dbCon.getConnection());
         customerDao.createCustomer(customer);
-        assert customerDao.getAllCustomers().size() > 0;
+        assertTrue(customerDao.getAllCustomers().size() > 0);
 
         dbCon.truncateAllTables();
-        assert customerDao.getAllCustomers().size() == 0;
+        assertEquals(customerDao.getAllCustomers().size(), 0);
 
         dbCon.removeAllTables();
         resultSet = statement.executeQuery();
-        assert resultSet.next() == false;
+        assertFalse(resultSet.next());
 
         dbCon.closeConnections();
         con = dbCon.getConnection();
-        assert con.isClosed();
+        assertTrue(con.isClosed());
     }
 }

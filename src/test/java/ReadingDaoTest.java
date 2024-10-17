@@ -9,6 +9,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -47,7 +50,7 @@ public class ReadingDaoTest {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
-        assert readingDao.getReading(reading.getId()).getId() == reading.getId();
+        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId()); 
 
     }
 
@@ -59,7 +62,7 @@ public class ReadingDaoTest {
         Reading updatedReading = new Reading(reading.getId(), "comment", customer, LocalDate.now(), KindOfMeter.WASSER,
                 12.0, "id", false);
         readingDao.updateReading(updatedReading);
-        assert readingDao.getReading(updatedReading.getId()).getKindOfMeter() == KindOfMeter.WASSER;
+        assertEquals(readingDao.getReading(updatedReading.getId()).getKindOfMeter(), KindOfMeter.WASSER);
     }
 
     @Test
@@ -68,7 +71,7 @@ public class ReadingDaoTest {
                 "id", false);
         readingDao.createReading(reading);
         readingDao.getReading(reading.getId());
-        assert readingDao.getReading(reading.getId()).getId() == reading.getId();
+        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId());
     }
 
     @Test
@@ -77,8 +80,8 @@ public class ReadingDaoTest {
         Reading reading = new Reading(test, "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
 
         readingDao.createReading(reading);
-        assert customerDao.getCustomer(customer.getId()) != null;
-        assert readingDao.getReading(test) != null;
+        assertNotEquals(customerDao.getCustomer(customer.getId()), null);
+        assertNotEquals( readingDao.getReading(test),null);
 
     }
 

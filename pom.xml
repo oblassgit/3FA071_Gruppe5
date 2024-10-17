@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.gc.mav</groupId>
@@ -46,12 +46,14 @@
             <version>3.3.3</version> <!-- oder die neueste Version -->
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.11.2</version>
             <scope>test</scope>
         </dependency>
+
 
     </dependencies>
 
@@ -78,11 +80,11 @@
                         <phase>generate-dirs</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="./src/main/java"/>
-                                <mkdir dir="./src/main/resources"/>
-                                <mkdir dir="./src/test/java"/>
-                                <mkdir dir="./src/test/resources"/>
-                                <mkdir dir="./target"/>
+                                <mkdir dir="./src/main/java" />
+                                <mkdir dir="./src/main/resources" />
+                                <mkdir dir="./src/test/java" />
+                                <mkdir dir="./src/test/resources" />
+                                <mkdir dir="./target" />
                             </target>
                         </configuration>
                         <goals>
