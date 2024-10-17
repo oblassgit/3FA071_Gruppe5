@@ -5,6 +5,7 @@ import dev.hv.model.interfaces.ICustomer;
 import dev.hv.model.interfaces.IReading;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Reading implements IReading {
@@ -111,5 +112,32 @@ public class Reading implements IReading {
     @Override
     public String printDateOfReading() {
         return dateOfReading.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Reading{" +
+                "id=" + id +
+                ", comment='" + comment + '\'' +
+                ", customer=" + customer +
+                ", dateOfReading=" + dateOfReading +
+                ", kindOfMeter=" + kindOfMeter +
+                ", meterCount=" + meterCount +
+                ", meterId='" + meterId + '\'' +
+                ", substitute=" + substitute +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reading reading = (Reading) o;
+        return id.equals(reading.id) && Objects.equals(comment, reading.comment) && customer.equals(reading.customer) && Objects.equals(dateOfReading, reading.dateOfReading) && kindOfMeter == reading.kindOfMeter && Objects.equals(meterCount, reading.meterCount) && Objects.equals(meterId, reading.meterId) && Objects.equals(substitute, reading.substitute);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, comment, customer, dateOfReading, kindOfMeter, meterCount, meterId, substitute);
     }
 }
