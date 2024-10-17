@@ -19,6 +19,7 @@ public class ReadingDao {
 
     PreparedStatement createStatement;
     PreparedStatement updateStatement;
+    PreparedStatement deleteStatement;
     PreparedStatement getStatement;
 
     public ReadingDao(Connection connection) throws SQLException {
@@ -26,6 +27,7 @@ public class ReadingDao {
         createStatement = connection.prepareStatement("insert into Reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         updateStatement = connection.prepareStatement("update Reading set comment = ?, customer_id = ?, " +
         "date_of_reading = ?, kind_of_meter = ?, meter_count = ?, meter_id = ?, substitute = ? where id = ?");
+        deleteStatement = connection.prepareStatement("delete from Reading where id = ?");
         getStatement = connection.prepareStatement("select * from Reading where id = ?");
     }
 
@@ -76,8 +78,13 @@ public class ReadingDao {
         updateStatement.executeUpdate();
     }
 
+    public void deleteReading(Reading reading) throws SQLException {
+        deleteStatement.setString(1, reading.getId().toString());
+        deleteStatement.execute();
+    }
 
-    public Reading getReading(UUID id) throws SQLException, IOException {
+
+    public Reading getReading(UUID id) throws SQLException {
         getStatement.setString(1, String.valueOf(id));
         ResultSet resultSet = getStatement.executeQuery();
 
