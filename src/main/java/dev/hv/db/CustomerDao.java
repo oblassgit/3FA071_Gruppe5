@@ -19,7 +19,7 @@ public class CustomerDao {
 
     PreparedStatement createStatement; 
     PreparedStatement deleteStatement;
-    PreparedStatement dUpdateStatement;
+    PreparedStatement removeCustomerInReadingStatement;
     PreparedStatement getStatement;
     PreparedStatement selectStatement;
     PreparedStatement updateStatement;
@@ -28,7 +28,7 @@ public class CustomerDao {
         connection = con;
         createStatement = connection.prepareStatement("insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
         deleteStatement = connection.prepareStatement("delete from Customer where id = ?");
-        dUpdateStatement = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
+        removeCustomerInReadingStatement = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
         selectStatement = connection.prepareStatement("select * from Customer");
         updateStatement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
         "birth_date = ?, gender = ? where id = ?");
@@ -52,9 +52,9 @@ public class CustomerDao {
             startTransactionStatement.executeQuery("start transaction");
             deleteStatement.setString(1, customer.getId().toString());
             deleteStatement.execute();
-        
-            dUpdateStatement.setString(1, customer.getId().toString());
-            dUpdateStatement.executeUpdate();
+
+            removeCustomerInReadingStatement.setString(1, customer.getId().toString());
+            removeCustomerInReadingStatement.executeUpdate();
 
             Statement commitTransactionStatement = connection.createStatement();
             commitTransactionStatement.executeQuery("commit");
