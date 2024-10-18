@@ -1,6 +1,6 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,22 +15,22 @@ import dev.hv.model.Customer;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class DatabaseConTest {
-    Properties properties;
+    static Properties properties;
     PreparedStatement statement;
     ResultSet resultSet;
 
-    @Before
-    public void before() throws IOException {
+    @BeforeAll
+    public static void before() throws IOException {
         properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
     }
 
     @Test
-    public void testDbCon() throws SQLException {
+    public  void testDbCon() throws SQLException {
         DatabaseCon dbCon = new DatabaseCon();
 
         dbCon.openConnections(properties);

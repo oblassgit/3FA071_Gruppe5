@@ -3,13 +3,14 @@ import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,14 +21,14 @@ import java.util.UUID;
 
 public class ReadingTest {
     static DatabaseCon databaseCon = new DatabaseCon();
-    Customer customer;
+    static Customer customer;
 
     static Reading reading;
-    UUID testId = UUID.randomUUID();
-    LocalDate testDate = LocalDate.now();
+    static UUID testId = UUID.randomUUID();
+    static LocalDate testDate = LocalDate.now();
 
-    @Before
-    public void before() throws IOException, SQLException {
+    @BeforeAll
+    public static void before() throws IOException, SQLException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
 
@@ -83,7 +84,7 @@ public class ReadingTest {
         assertEquals(reading.printDateOfReading(), testDate.toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();

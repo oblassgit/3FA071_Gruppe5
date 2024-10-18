@@ -5,12 +5,13 @@ import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
 import dev.hv.db.ReadingDao;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class ReadingDaoTest {
     static CustomerDao customerDao;
     static ReadingDao readingDao;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws IOException, SQLException {
 
         Properties properties = new Properties();
@@ -85,7 +86,7 @@ public class ReadingDaoTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();
