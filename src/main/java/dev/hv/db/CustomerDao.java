@@ -17,14 +17,14 @@ public class CustomerDao {
 
     private Connection connection;
 
-
     public CustomerDao(Connection con) {
         connection = con;
     }
 
     public void createCustomer(Customer customer) throws SQLException {
 
-        PreparedStatement statement = connection.prepareStatement("insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
+        PreparedStatement statement = connection.prepareStatement(
+                "insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
         statement.setString(1, customer.getId().toString());
         statement.setString(2, customer.getFirstName());
         statement.setString(3, customer.getLastName());
@@ -37,22 +37,27 @@ public class CustomerDao {
     public void deleteCustomer(Customer customer) throws SQLException {
 
         try {
-            Statement startTransactionStatement = connection.createStatement();
-            startTransactionStatement.executeQuery("start transaction");
+            Statement stmt = connection.createStatement();
+            stmt.executeQuery("start transaction");
 
-            PreparedStatement statement = connection.prepareStatement("delete from Customer where id = ?");
-            statement.setString(1, customer.getId().toString());
-            statement.execute();
+            stmt.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
 
-            PreparedStatement statement1 = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
-            statement1.setString(1, customer.getId().toString());
-            statement1.executeUpdate();
+            PreparedStatement prepStmt = connection.prepareStatement("delete from Customer where id = ?");
+            prepStmt.setString(1, customer.getId().toString());
+            prepStmt.execute();
 
-            Statement commitTransactionStatement = connection.createStatement();
-            commitTransactionStatement.executeQuery("commit");
+            stmt.execute(
+                    "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
+
+            prepStmt = connection
+                    .prepareStatement("update Reading set customer_id = null where customer_id = ?");
+            prepStmt.setString(1, customer.getId().toString());
+            prepStmt.executeUpdate();
+
+            stmt.executeQuery("commit");
         } catch (SQLException e) {
-            Statement rollbackStatement = connection.createStatement();
-            rollbackStatement.executeQuery("rollback");
+            Statement rollbackStmt = connection.createStatement();
+            rollbackStmt.executeQuery("rollback");
             System.err.println("Transaction failed! Rolled back changes.");
             e.printStackTrace();
         }
@@ -80,7 +85,8 @@ public class CustomerDao {
         ArrayList<Customer> list = new ArrayList<>();
 
         while (resultSet.next()) {
-            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"), resultSet.getString("last_name"),
+            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"),
+                    resultSet.getString("last_name"),
                     resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender"))));
         }
 
@@ -88,8 +94,9 @@ public class CustomerDao {
     }
 
     public void updateCustomer(Customer customer) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
-                "birth_date = ?, gender = ? where id = ?");
+        PreparedStatement statement = connection
+                .prepareStatement("update Customer set first_name = ?, last_name = ?, " +
+                        "birth_date = ?, gender = ? where id = ?");
 
         statement.setString(1, customer.getFirstName());
         statement.setString(2, customer.getLastName());
