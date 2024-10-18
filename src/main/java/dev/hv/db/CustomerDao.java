@@ -17,6 +17,7 @@ public class CustomerDao {
 
     private Connection connection;
 
+
     PreparedStatement createStatement; 
     PreparedStatement deleteStatement;
     PreparedStatement removeCustomerInReadingStatement;
@@ -48,16 +49,23 @@ public class CustomerDao {
     public void deleteCustomer(Customer customer) throws SQLException {
 
         try {
-            Statement startTransactionStatement = connection.createStatement();
-            startTransactionStatement.executeQuery("start transaction");
+            Statement alterConstraintStatement = connection.createStatement();
+            Statement transactionStatement = connection.createStatement();
+            transactionStatement.executeQuery("start transaction");
+
+            alterConstraintStatement.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
+
             deleteStatement.setString(1, customer.getId().toString());
             deleteStatement.execute();
+
+            alterConstraintStatement.execute(
+                    "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
 
             removeCustomerInReadingStatement.setString(1, customer.getId().toString());
             removeCustomerInReadingStatement.executeUpdate();
 
-            Statement commitTransactionStatement = connection.createStatement();
-            commitTransactionStatement.executeQuery("commit");
+
+            transactionStatement.executeQuery("commit");
         } catch (SQLException e) {
             Statement rollbackStatement = connection.createStatement();
             rollbackStatement.executeQuery("rollback");
@@ -83,7 +91,8 @@ public class CustomerDao {
         ArrayList<Customer> list = new ArrayList<>();
 
         while (resultSet.next()) {
-            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"), resultSet.getString("last_name"),
+            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"),
+                    resultSet.getString("last_name"),
                     resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender"))));
         }
 
@@ -91,6 +100,7 @@ public class CustomerDao {
     }
 
     public void updateCustomer(Customer customer) throws SQLException {
+
         updateStatement.setString(1, customer.getFirstName());
         updateStatement.setString(2, customer.getLastName());
         updateStatement.setDate(3, Date.valueOf(customer.getBirthDate()));

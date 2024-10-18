@@ -4,7 +4,6 @@ import dev.hv.model.Customer;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
