@@ -49,28 +49,26 @@ public class CustomerDao {
     public void deleteCustomer(Customer customer) throws SQLException {
 
         try {
-            Statement stmt = connection.createStatement();
-            stmt.executeQuery("start transaction");
+            Statement alterConstraintStatement = connection.createStatement();
+            Statement transactionStatement = connection.createStatement();
+            transactionStatement.executeQuery("start transaction");
 
-            stmt.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
+            alterConstraintStatement.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
 
-            PreparedStatement prepStmt = connection.prepareStatement("delete from Customer where id = ?");
-            prepStmt.setString(1, customer.getId().toString());
-            prepStmt.execute();
+            deleteStatement.setString(1, customer.getId().toString());
+            deleteStatement.execute();
 
-            stmt.execute(
+            alterConstraintStatement.execute(
                     "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
 
-            prepStmt = connection
-                    .prepareStatement("update Reading set customer_id = null where customer_id = ?");
-            prepStmt.setString(1, customer.getId().toString());
-            prepStmt.executeUpdate();
+            removeCustomerInReadingStatement.setString(1, customer.getId().toString());
+            removeCustomerInReadingStatement.executeUpdate();
 
 
-            stmt.executeQuery("commit");
+            transactionStatement.executeQuery("commit");
         } catch (SQLException e) {
-            Statement rollbackStmt = connection.createStatement();
-            rollbackStmt.executeQuery("rollback");
+            Statement rollbackStatement = connection.createStatement();
+            rollbackStatement.executeQuery("rollback");
             System.err.println("Transaction failed! Rolled back changes.");
             e.printStackTrace();
         }
