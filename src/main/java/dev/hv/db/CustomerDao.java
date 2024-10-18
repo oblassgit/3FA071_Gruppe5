@@ -16,24 +16,28 @@ import java.util.UUID;
 public class CustomerDao {
 
     private Connection connection;
+    
 
-
-    PreparedStatement createStatement; 
+    PreparedStatement createStatement;
     PreparedStatement deleteStatement;
     PreparedStatement removeCustomerInReadingStatement;
     PreparedStatement getStatement;
+    PreparedStatement countStatement;
     PreparedStatement selectStatement;
     PreparedStatement updateStatement;
-    
+
     public CustomerDao(Connection con) throws SQLException {
         connection = con;
-        createStatement = connection.prepareStatement("insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
+        createStatement = connection.prepareStatement(
+                "insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
         deleteStatement = connection.prepareStatement("delete from Customer where id = ?");
-        removeCustomerInReadingStatement = connection.prepareStatement("update Reading set customer_id = null where customer_id = ?");
+        removeCustomerInReadingStatement = connection
+                .prepareStatement("update Reading set customer_id = null where customer_id = ?");
+        getStatement = connection.prepareStatement("select * from Customer where id = ?");
+        countStatement = connection.prepareStatement("select count(*) as count from Customer");
         selectStatement = connection.prepareStatement("select * from Customer");
         updateStatement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
-        "birth_date = ?, gender = ? where id = ?");
-        getStatement = connection.prepareStatement("select * from Customer where id = ?");
+                "birth_date = ?, gender = ? where id = ?");
     }
 
     public void createCustomer(Customer customer) throws SQLException {
@@ -64,7 +68,7 @@ public class CustomerDao {
             removeCustomerInReadingStatement.setString(1, customer.getId().toString());
             removeCustomerInReadingStatement.executeUpdate();
 
-
+            
             transactionStatement.executeQuery("commit");
         } catch (SQLException e) {
             Statement rollbackStatement = connection.createStatement();
@@ -87,8 +91,13 @@ public class CustomerDao {
     }
 
     public List<Customer> getAllCustomers() throws SQLException {
+        ResultSet countResultSet = countStatement.executeQuery();
+        if (!countResultSet.next()) {
+            return new ArrayList<>(0);
+        }
+
         ResultSet resultSet = selectStatement.executeQuery();
-        ArrayList<Customer> list = new ArrayList<>();
+        ArrayList<Customer> list = new ArrayList<>(countResultSet.getInt("count"));
 
         while (resultSet.next()) {
             list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"),
