@@ -5,9 +5,13 @@ import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
 import dev.hv.db.ReadingDao;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,8 +29,8 @@ public class ReadingDaoTest {
     static CustomerDao customerDao;
     static ReadingDao readingDao;
 
-    @BeforeClass
-    public static void before() throws IOException, SQLException {
+    @BeforeEach
+    public void before() throws IOException, SQLException {
 
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
@@ -47,7 +51,7 @@ public class ReadingDaoTest {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
-        assert readingDao.getReading(reading.getId()).getId() == reading.getId();
+        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId()); 
 
     }
 
@@ -59,7 +63,7 @@ public class ReadingDaoTest {
         Reading updatedReading = new Reading(reading.getId(), "comment", customer, LocalDate.now(), KindOfMeter.WASSER,
                 12.0, "id", false);
         readingDao.updateReading(updatedReading);
-        assert readingDao.getReading(updatedReading.getId()).getKindOfMeter() == KindOfMeter.WASSER;
+        assertEquals(readingDao.getReading(updatedReading.getId()).getKindOfMeter(), KindOfMeter.WASSER);
     }
 
     @Test
@@ -68,7 +72,7 @@ public class ReadingDaoTest {
                 "id", false);
         readingDao.createReading(reading);
         readingDao.getReading(reading.getId());
-        assert readingDao.getReading(reading.getId()).getId() == reading.getId();
+        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId());
     }
 
     @Test
@@ -88,12 +92,12 @@ public class ReadingDaoTest {
         Reading reading = new Reading(test, "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
 
         readingDao.createReading(reading);
-        assert customerDao.getCustomer(customer.getId()) != null;
-        assert readingDao.getReading(test) != null;
+        assertNotEquals(customerDao.getCustomer(customer.getId()), null);
+        assertNotEquals( readingDao.getReading(test),null);
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();

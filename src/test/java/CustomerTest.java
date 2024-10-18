@@ -1,11 +1,8 @@
 import dev.hv.model.Customer;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,12 +10,16 @@ import java.time.LocalDate;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class CustomerTest {
 
     static DatabaseCon databaseCon = new DatabaseCon();
     static Customer customer;
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
@@ -45,7 +46,7 @@ public class CustomerTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();

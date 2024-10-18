@@ -5,9 +5,8 @@ import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
 import dev.hv.db.ReadingDao;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,6 +14,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Properties;
 import java.util.UUID;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CustomerDaoTest {
 
@@ -24,7 +27,7 @@ public class CustomerDaoTest {
     static CustomerDao customerDao;
 
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, SQLException {
 
         Properties properties = new Properties();
@@ -51,8 +54,7 @@ public class CustomerDaoTest {
 
     @Test
     public void testGetCustomer() throws SQLException {
-        assert customerDao.getCustomer(customer.getId()).getId() == customer.getId();
-
+        assertEquals(customer.getId(), customerDao.getCustomer(customer.getId()).getId());
     }
 
     @Test
@@ -69,16 +71,16 @@ public class CustomerDaoTest {
         customerDao.createCustomer(customer3);
         customerDao.createCustomer(customer4);
 
-        assert customerDao.getAllCustomers().size() == 4;
+        assertEquals(customerDao.getAllCustomers().size(), 4);
     }
 
     @Test
     public void testUpdateCustomer() throws SQLException {
-        assert customerDao.getCustomer(customer.getId()).getGender() == Gender.M;
+        assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.M);
         Customer updatedCustomer = new Customer(customer.getId(), "Sigrid", "Blass", customer.getBirthDate(), Gender.W);
         customerDao.updateCustomer(updatedCustomer);
 
-        assert customerDao.getCustomer(updatedCustomer.getId()).getGender() == Gender.W;
+        assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.W);
     }
 
     @Test
@@ -90,9 +92,10 @@ public class CustomerDaoTest {
 
         customerDao.deleteCustomer(customer);
         assert readingDao.getReading(reading.getId()).getCustomer() == null;
+        assertEquals(readingDao.getReading(reading.getId()).getCustomer(), null);
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();

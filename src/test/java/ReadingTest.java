@@ -3,9 +3,14 @@ import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,13 +21,13 @@ import java.util.UUID;
 
 public class ReadingTest {
     static DatabaseCon databaseCon = new DatabaseCon();
-    Customer customer;
+    static Customer customer;
 
     static Reading reading;
-    UUID testId = UUID.randomUUID();
-    LocalDate testDate = LocalDate.now();
+    static UUID testId = UUID.randomUUID();
+    static LocalDate testDate = LocalDate.now();
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, SQLException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
@@ -39,14 +44,14 @@ public class ReadingTest {
 
     @Test
     public void testGetters() {
-        assert reading.getId() == testId;
-        assert reading.getComment() == "testComment";
-        assert reading.getCustomer() == customer;
-        assert reading.getDateOfReading() == testDate;
-        assert reading.getKindOfMeter() == KindOfMeter.WASSER;
-        assert reading.getMeterCount() == 5.5;
-        assert reading.getMeterId() == "meterId";
-        assert reading.getSubstitute();
+        assertEquals(reading.getId(), testId);
+        assertEquals(reading.getComment(),"testComment");
+        assertEquals(reading.getCustomer(),customer);
+        assertEquals( reading.getDateOfReading(),testDate);
+        assertEquals(reading.getKindOfMeter(), KindOfMeter.WASSER);
+        assertEquals(reading.getMeterCount().toString(), "5.5");
+        assertEquals(reading.getMeterId(), "meterId");
+        assertTrue(reading.getSubstitute());
     }
 
     @Test
@@ -57,29 +62,29 @@ public class ReadingTest {
 
 
         reading.setId(newTestId);
-        assert reading.getId() == newTestId;
+        assertEquals(reading.getId(), newTestId);
         reading.setComment("testComment");
-        assert reading.getComment() == "testComment";
+        assertEquals(reading.getComment(),"testComment");
         reading.setCustomer(newCustomer);
-        assert reading.getCustomer() == newCustomer;
+        assertEquals( reading.getCustomer(),newCustomer);
         reading.setDateOfReading(newTestDate);
-        assert reading.getDateOfReading() == newTestDate;
+        assertEquals( reading.getDateOfReading(), newTestDate);
         reading.setKindOfMeter(KindOfMeter.STROM);
-        assert reading.getKindOfMeter() == KindOfMeter.STROM;
+        assertEquals( reading.getKindOfMeter(), KindOfMeter.STROM);
         reading.setMeterCount(1.234);
-        assert reading.getMeterCount() == 1.234;
+        assertEquals(reading.getMeterCount().toString(), "1.234") ;
         reading.setMeterId("newMeterId");
-        assert reading.getMeterId() == "newMeterId";
+        assertEquals( reading.getMeterId(),"newMeterId");
         reading.setSubstitute(false);
-        assert reading.getSubstitute() == false;
+        assertFalse(reading.getSubstitute());
     }
 
     @Test
     public void testPrintDateOfReading() {
-        assert reading.printDateOfReading().equals(testDate.toString());
+        assertEquals(reading.printDateOfReading(), testDate.toString());
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         databaseCon.truncateAllTables();
         databaseCon.closeConnections();
