@@ -1,5 +1,6 @@
 package dev.hv.db;
 
+import dev.hv.Util;
 import dev.hv.model.interfaces.IDatabaseConnections;
 
 import java.sql.Connection;
@@ -44,13 +45,11 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public IDatabaseConnections openConnections(Properties properties) {
         
-        final String dburl = properties.getProperty(System.getProperty("user.name") + ".db.url");
-        final String dbuser = properties.getProperty(System.getProperty("user.name") + ".db.user");
-        final String dbpw = properties.getProperty(System.getProperty("user.name") + ".db.pw");
+        Util util = new Util();
 
         try {
             // Verbindung zur MariaDB
-            connection = DriverManager.getConnection(dburl, dbuser, dbpw);
+            connection = DriverManager.getConnection(util.getDbUrl(), util.getDbUser(), util.getDbPw());
             System.out.println("Verbindung erfolgreich hergestellt.");
         } catch (SQLException e) {
             e.printStackTrace();
