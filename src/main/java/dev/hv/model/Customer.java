@@ -4,6 +4,7 @@ import dev.hv.enums.Gender;
 import dev.hv.model.interfaces.ICustomer;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Customer implements ICustomer {
@@ -69,5 +70,29 @@ public class Customer implements ICustomer {
     @Override
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthDate=" + birthDate +
+                ", gender=" + gender +
+                ", id=" + id +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(birthDate, customer.birthDate) && gender == customer.gender && id.equals(customer.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, birthDate, gender, id);
     }
 }
