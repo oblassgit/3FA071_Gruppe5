@@ -84,7 +84,7 @@ public class CustomerDaoTest {
     }
 
     @Test
-    public void testDeleteCustomer() throws SQLException, IOException {
+    public void testDeleteCustomer() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
 
         ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());

@@ -15,7 +15,7 @@ public class DatabaseCon implements IDatabaseConnections {
             id UUID NOT NULL,
             first_name VARCHAR(100) NOT NULL,
             last_name VARCHAR(100) NOT NULL,
-            birth_date DATE NOT NULL,
+            birth_date DATE,
             gender ENUM('D', 'M', 'U', 'W') NOT NULL,
             PRIMARY KEY (id)
             )
@@ -74,7 +74,7 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public void truncateAllTables() {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("TRUNCATE TABLE reading;");
+            stmt.execute("TRUNCATE  TABLE reading;");
             stmt.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
             stmt.execute("TRUNCATE TABLE customer;");
             stmt.execute(
