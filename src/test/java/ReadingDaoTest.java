@@ -47,7 +47,7 @@ public class ReadingDaoTest {
     }
 
     @Test
-    public void testCreateReading() throws SQLException, IOException {
+    public void testCreateReading() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
@@ -56,7 +56,7 @@ public class ReadingDaoTest {
     }
 
     @Test
-    public void testUpdateReading() throws SQLException, IOException {
+    public void testUpdateReading() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
@@ -67,7 +67,7 @@ public class ReadingDaoTest {
     }
 
     @Test
-    public void testGetReading() throws SQLException, IOException {
+    public void testGetReading() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
@@ -76,7 +76,18 @@ public class ReadingDaoTest {
     }
 
     @Test
-    public void testCreateReadingWithoutCustomer() throws SQLException, IOException {
+    public void testDeleteReading() throws SQLException {
+        Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
+                "id", false);
+        readingDao.createReading(reading);
+        readingDao.deleteReading(reading);
+        Reading deletedReading = readingDao.getReading(reading.getId());
+
+        assert deletedReading == null;
+    }
+
+    @Test
+    public void testCreateReadingWithoutCustomer() throws SQLException {
         UUID test = UUID.randomUUID();
         Reading reading = new Reading(test, "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
 
