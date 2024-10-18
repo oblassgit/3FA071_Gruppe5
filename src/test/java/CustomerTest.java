@@ -59,8 +59,9 @@ public class CustomerTest {
     public void testNotEqualsNegative() {
         Customer differentCustomer = new Customer(UUID.randomUUID(), "Fritz", "Walter", LocalDate.now(), Gender.M);
         assertNotEquals(customer, differentCustomer);
-      
+    }
 
+    @Test
     public void testToString() {
         assertEquals(customer.toString(), "Customer{firstName='Schwanzus', lastName='Longus', birthDate="
                 + LocalDate.of(2005, 6, 9) + ", gender=" + Gender.M + ", id=" + customerId + '}');
