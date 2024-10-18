@@ -18,9 +18,9 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public IDatabaseConnections openConnections(Properties properties) {
 
-        final String dburl = properties.getProperty("db_url");
-        final String dbuser = properties.getProperty("db_user");
-        final String dbpw = properties.getProperty("db_pw");
+        final String dburl = properties.getProperty(System.getProperty("user.name")+".db.url");
+        final String dbuser = properties.getProperty(System.getProperty("user.name")+".db.user");
+        final String dbpw = properties.getProperty(System.getProperty("user.name")+".db.pw");
 
         try {
             // Verbindung zur MariaDB 
