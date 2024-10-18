@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.FileReader;
@@ -28,7 +29,7 @@ public class ReadingTest {
     static LocalDate testDate = LocalDate.now();
 
     @BeforeEach
-    public void before() throws IOException, SQLException {
+    public void before() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
 
@@ -76,6 +77,23 @@ public class ReadingTest {
         assertEquals(reading.getMeterId(), "newMeterId");
         reading.setSubstitute(false);
         assertFalse(reading.getSubstitute());
+    }
+
+    @Test
+    public void testEqualsPositive() {
+        Reading equalReading = new Reading(reading.getId(), reading.getComment(), reading.getCustomer(),
+                reading.getDateOfReading(), reading.getKindOfMeter(),
+                reading.getMeterCount(), reading.getMeterId(), reading.getSubstitute());
+
+        assertEquals(reading, equalReading);
+    }
+
+    @Test
+    public void testEqualsNegative() {
+        Reading differentReading = new Reading(UUID.randomUUID(), "1234", customer, LocalDate.now(),
+                KindOfMeter.HEIZUNG, 2.5, "1123dh", true);
+
+        assertNotEquals(reading, differentReading);
     }
 
     @Test

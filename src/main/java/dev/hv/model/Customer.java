@@ -90,9 +90,4 @@ public class Customer implements ICustomer {
         Customer customer = (Customer) o;
         return Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(birthDate, customer.birthDate) && gender == customer.gender && id.equals(customer.id);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(firstName, lastName, birthDate, gender, id);
-    }
 }
