@@ -11,6 +11,8 @@ import dev.hv.model.Reading;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -59,46 +61,64 @@ public class ExampleDataCreator {
     }
 
 
-    public static void createReadingsFromCsv(String filePath, ReadingDao readingDao, CustomerDao customerDao, KindOfMeter kindOfMeter) throws IOException, SQLException {
+    public static void createReadingsFromCsv(String filePath, KindOfMeter kindOfMeter) throws IOException, SQLException, ParseException {
+        Properties properties = new Properties();
+        properties.load(new FileReader("src/main/resources/DbData.properties"));
         CSVParser csvParser = new CSVParser(filePath);
         Customer customer = null;
         String customerId = null;
         String meterId = null;
+        DatabaseCon databaseCon = new DatabaseCon();
+        databaseCon.openConnections(properties);
+        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
 
         while (csvParser.hasNext()) {
             String line = csvParser.next();
             String [] lineArray = line.split(";");
             LocalDate dateOfReading = LocalDate.of(0, 1, 1);
-            Double meterCount = 0.0;
+            double meterCount = 0.0;
             String comment = "";
 
-            if (lineArray[0].equals("\"Kunde\"")) {
-                customerId = lineArray[1].replaceAll("\"", "");
-            } else if (lineArray[0].equals("\"Zählernummer\"")) {
-                meterId = lineArray[1];
-            } else if (!lineArray[0].equals("") && !lineArray[0].equals("Datum") && !lineArray[0].equals("\"Kunde\"")) {
-                dateOfReading = LocalDate.parse(
-                        lineArray[0],
-                        DateTimeFormatter.ofPattern( "dd.MM.yyyy" )
-                );
-                meterCount = Double.valueOf(lineArray[1]);
-                comment = lineArray[2];
-            }
-            System.out.println(customerId);
-            if(customerId != null) {
-                customer = customerDao.getCustomer(UUID.fromString(customerId));
+            if (lineArray.length >= 2) {
+                String dateString = lineArray[0];
+                if (dateString.contains("\"")) {
+                    dateString = dateString.replaceAll("\"", "");
+                }
+
+                if (lineArray[0].equals("\"Kunde\"")) {
+                    customerId = lineArray[1].replaceAll("\"", "");
+                } else if (lineArray[0].equals("\"Zählernummer\"")) {
+                    meterId = lineArray[1];
+                } else if (isNumeric(lineArray[1])) {
+
+
+                    dateOfReading = LocalDate.parse(
+                            dateString,
+                            DateTimeFormatter.ofPattern( "dd.MM.yyyy" )
+                    );
+                    meterCount = DecimalFormat.getNumberInstance().parse(lineArray[1]).doubleValue();
+                    if(lineArray.length > 2) {
+                        comment = lineArray[2];
+                    }
+
+                }
+                if(customerId != null) {
+                    customer = customerDao.getCustomer(UUID.fromString(customerId));
+                }
+
+                if (!lineArray[0].equals("") && !lineArray[0].equals("\"Datum\"") && !lineArray[0].equals("\"Kunde\"")) {
+                    Reading reading = new Reading(UUID.randomUUID(), comment, customer, dateOfReading, kindOfMeter, meterCount, meterId, false);
+                    readingDao.createReading(reading);
+                }
             }
 
 
-            if (!lineArray[0].equals("") && !lineArray[0].equals("\"Datum\"") && !lineArray[0].equals("\"Kunde\"")) {
-                Reading reading = new Reading(UUID.randomUUID(), comment, customer, dateOfReading, kindOfMeter, meterCount, meterId, false);
-                readingDao.createReading(reading);
-            }
         }
 
     }
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws IOException, SQLException, ParseException {
         DatabaseCon databaseCon = new DatabaseCon();
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
@@ -107,10 +127,16 @@ public class ExampleDataCreator {
         databaseCon.truncateAllTables();
         createCustomersFromCSV("src/main/resources/csv/kunden_utf8.csv");
 
-        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
-        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-
-        createReadingsFromCsv("src/main/resources/csv/heizung.csv", readingDao, customerDao, KindOfMeter.HEIZUNG);
+        createReadingsFromCsv("src/main/resources/csv/strom.csv", KindOfMeter.STROM);
         databaseCon.closeConnections();
+    }
+
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
     }
 }
