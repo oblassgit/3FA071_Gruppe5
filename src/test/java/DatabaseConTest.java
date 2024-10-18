@@ -15,7 +15,7 @@ import dev.hv.model.Customer;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class DatabaseConTest {
@@ -23,8 +23,8 @@ public class DatabaseConTest {
     PreparedStatement statement;
     ResultSet resultSet;
 
-    @BeforeAll
-    public static void before() throws IOException {
+    @BeforeEach
+    public void before() throws IOException {
         properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
     }

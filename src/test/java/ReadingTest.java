@@ -5,7 +5,7 @@ import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,8 +27,8 @@ public class ReadingTest {
     static UUID testId = UUID.randomUUID();
     static LocalDate testDate = LocalDate.now();
 
-    @BeforeAll
-    public static void before() throws IOException, SQLException {
+    @BeforeEach
+    public void before() throws IOException, SQLException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
 

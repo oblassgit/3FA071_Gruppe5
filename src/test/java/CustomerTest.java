@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class CustomerTest {
@@ -19,8 +19,8 @@ public class CustomerTest {
     static DatabaseCon databaseCon = new DatabaseCon();
     static Customer customer;
 
-    @BeforeAll
-    public static void before() throws IOException {
+    @BeforeEach
+    public void before() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
         databaseCon.openConnections(properties);
