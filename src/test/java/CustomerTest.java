@@ -3,6 +3,7 @@ import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,6 +45,18 @@ public class CustomerTest {
         assertEquals(TestDate, customer.getBirthDate());
         assertEquals(Gender.D, customer.getGender());
 
+    }
+
+    @Test
+    public void testEqualsPositive() {
+        Customer equalCustomer = new Customer(customer.getId(), customer.getFirstName(), customer.getLastName(), customer.getBirthDate(), customer.getGender());
+        assertEquals(customer, equalCustomer);
+    }
+
+    @Test
+    public void testNotEqualsNegative() {
+        Customer differentCustomer = new Customer(UUID.randomUUID(), "Fritz", "Walter", LocalDate.now(), Gender.M);
+        assertNotEquals(customer, differentCustomer);
     }
 
     @AfterAll

@@ -135,9 +135,4 @@ public class Reading implements IReading {
         Reading reading = (Reading) o;
         return id.equals(reading.id) && Objects.equals(comment, reading.comment) && customer.equals(reading.customer) && Objects.equals(dateOfReading, reading.dateOfReading) && kindOfMeter == reading.kindOfMeter && Objects.equals(meterCount, reading.meterCount) && Objects.equals(meterId, reading.meterId) && Objects.equals(substitute, reading.substitute);
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, comment, customer, dateOfReading, kindOfMeter, meterCount, meterId, substitute);
-    }
 }
