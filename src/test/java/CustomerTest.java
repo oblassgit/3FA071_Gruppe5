@@ -18,13 +18,15 @@ public class CustomerTest {
 
     static DatabaseCon databaseCon = new DatabaseCon();
     static Customer customer;
+    static UUID customerId;
 
     @BeforeEach
     public void before() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileReader("src/main/resources/DbData.properties"));
         databaseCon.openConnections(properties);
-        customer = new Customer(UUID.randomUUID(), "Schwanzus", "Longus", LocalDate.of(2005, 6, 9), Gender.M);
+        customerId = UUID.randomUUID();
+        customer = new Customer(customerId, "Schwanzus", "Longus", LocalDate.of(2005, 6, 9), Gender.M);
         databaseCon.removeAllTables();
         databaseCon.createAllTables();
         databaseCon.truncateAllTables();
@@ -44,6 +46,12 @@ public class CustomerTest {
         assertEquals(TestDate, customer.getBirthDate());
         assertEquals(Gender.D, customer.getGender());
 
+    }
+
+    @Test
+    public void testToString() {
+        assertEquals(customer.toString(), "Customer{firstName='Schwanzus', lastName='Longus', birthDate="
+                + LocalDate.of(2005, 6, 9) + ", gender=" + Gender.M + ", id=" + customerId + '}');
     }
 
     @AfterAll
