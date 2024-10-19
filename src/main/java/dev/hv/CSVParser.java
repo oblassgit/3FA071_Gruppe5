@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class CSVParser {
 
@@ -13,7 +14,7 @@ public class CSVParser {
 
     public CSVParser(String filePath) throws IOException {
         String absolutePath = new File(filePath).getAbsolutePath();
-        fileReader = new FileReader(absolutePath);
+        fileReader = new FileReader(absolutePath, StandardCharsets.UTF_8);
         bufferedReader = new BufferedReader(fileReader);
     }
 

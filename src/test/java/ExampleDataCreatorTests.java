@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -48,14 +47,15 @@ public class ExampleDataCreatorTests {
     @Test
     public void testCreateReadingsFromCSV() throws SQLException, IOException, ParseException {
         ResultSet resultSet;
+        System.out.println(" >>>>>> testCreateReadingsFromCSV ");
 
         ExampleDataCreator.createCustomersFromCSV("src/main/resources/csv/kunden_utf8.csv");
-        ExampleDataCreator.createReadingsFromCsv("src/main/resources/csv/strom.csv", KindOfMeter.STROM);
+        ExampleDataCreator.createReadingsFromCsv("src/main/resources/csv/wasser.csv", KindOfMeter.WASSER);
 
         String selectStatement = "SELECT COUNT(*) AS recordCount FROM Reading";
 
         resultSet = databaseCon.getConnection().createStatement().executeQuery(selectStatement);
         resultSet.next();
-        assertEquals(64, resultSet.getInt("recordCount"));
+        assertEquals(66, resultSet.getInt("recordCount"));
     }
 }

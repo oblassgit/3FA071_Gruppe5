@@ -15,6 +15,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -93,21 +94,28 @@ public class ExampleDataCreator {
                 } else if (isNumeric(lineArray[1])) {
 
 
-                    dateOfReading = LocalDate.parse(
-                            dateString,
-                            DateTimeFormatter.ofPattern( "dd.MM.yyyy" )
-                    );
+                    try {
+                        dateOfReading = LocalDate.parse(
+                                dateString,
+                                DateTimeFormatter.ofPattern( "dd.MM.yyyy" )
+                        );
+                    } catch (DateTimeParseException e) {
+                        //ignore
+                    }
+
+
                     meterCount = DecimalFormat.getNumberInstance().parse(lineArray[1]).doubleValue();
-                    if(lineArray.length > 2) {
+                    if (lineArray.length > 2) {
                         comment = lineArray[2];
                     }
+
 
                 }
                 if(customerId != null) {
                     customer = customerDao.getCustomer(UUID.fromString(customerId));
                 }
 
-                if (!lineArray[0].equals("") && !lineArray[0].equals("\"Datum\"") && !lineArray[0].equals("\"Kunde\"")) {
+                if (!lineArray[0].equals("") && !lineArray[0].equals("\"Datum\"") && !lineArray[0].equals("\"Kunde\"") && !lineArray[0].equals("\"Zählernummer\"")) {
                     Reading reading = new Reading(UUID.randomUUID(), comment, customer, dateOfReading, kindOfMeter, meterCount, meterId, false);
                     readingDao.createReading(reading);
                 }
@@ -116,19 +124,6 @@ public class ExampleDataCreator {
 
         }
 
-    }
-
-    public static void main(String[] args) throws IOException, SQLException, ParseException {
-        DatabaseCon databaseCon = new DatabaseCon();
-        Properties properties = new Properties();
-        properties.load(new FileReader("src/main/resources/DbData.properties"));
-        databaseCon.openConnections(properties);
-        databaseCon.createAllTables();
-        databaseCon.truncateAllTables();
-        createCustomersFromCSV("src/main/resources/csv/kunden_utf8.csv");
-
-        createReadingsFromCsv("src/main/resources/csv/strom.csv", KindOfMeter.STROM);
-        databaseCon.closeConnections();
     }
 
     public static boolean isNumeric(String str) {
