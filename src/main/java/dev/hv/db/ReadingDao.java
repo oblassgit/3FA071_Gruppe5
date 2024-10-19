@@ -60,6 +60,7 @@ public class ReadingDao {
             Statement rollbackStatement = connection.createStatement();
             rollbackStatement.executeQuery("rollback");
             System.err.println("Transaction failed! Rolled back changes.");
+            System.err.println(createStatement.toString() + ": FAILED!");
             e.printStackTrace();
         }
 
