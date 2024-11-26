@@ -26,6 +26,6 @@ public class Server {
     }
 
     public static void main(String [] args) {
-        startServer("http://localhost:8080/rest");
+        startServer("http://127.0.0.1:8080/rest");
     }
 }
