@@ -13,7 +13,7 @@ import java.util.UUID;
 @Path("customers")
 public class CustomerResource {
 
-    @Path("/get")
+    @Path("get")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Customer getCustomer() {
