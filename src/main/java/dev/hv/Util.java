@@ -37,4 +37,6 @@ public class Util {
     public String getDbPw() {
         return dbpw;
     }
+
+    public Properties getProperties() {return properties;}
 }

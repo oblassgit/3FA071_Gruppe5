@@ -31,8 +31,9 @@
         <main.class>org.group5.Main</main.class>
 
         <jacoco.version>0.8.12</jacoco.version>
-         
-         <jersey.version>3.1.9</jersey.version>
+
+        <jersey.version>3.1.9</jersey.version>
+        <jackson.version>2.18.1</jackson.version>
     </properties>
 
     <dependencies>
@@ -70,6 +71,28 @@
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson</groupId>
+            <artifactId>jackson-bom</artifactId>
+            <version>${jackson.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>  <!-- Use the version compatible with your Jackson version -->
+        </dependency>
+
 
 
     </dependencies>
