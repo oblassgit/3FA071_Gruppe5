@@ -1,5 +1,13 @@
 package dev.hv.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import dev.hv.enums.Gender;
 import dev.hv.model.interfaces.ICustomer;
 
@@ -7,9 +15,16 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
+@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo
+        .Id.NAME)
+@JsonTypeName(value = "customer")
 public class Customer implements ICustomer {
     private String firstName;
     private String lastName;
+    @JsonProperty("birthDate")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthDate;
     private Gender gender;
     private UUID id;
