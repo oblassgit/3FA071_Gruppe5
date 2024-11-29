@@ -4,6 +4,7 @@ import dev.hv.Util;
 import dev.hv.db.DatabaseCon;
 import dev.hv.db.ReadingDao;
 import dev.hv.model.Reading;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -42,10 +43,29 @@ public class ReadingResource {
        
         // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
         // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer, LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
-             
+
         return Response.ok(reading).build();
     }
+
+    @Path("/{uuid}")
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteReading(@PathParam("uuid") String uuid) {
+        Reading reading;
+        try {
+            databaseCon.openConnections(util.getProperties());
+            databaseCon.createAllTables();
+
+            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+            reading = readingDao.getReading(UUID.fromString(uuid));
+            readingDao.deleteReading(reading);
+
+        } catch (SQLException e) {
+            return Response.serverError().build();
+        }
+        return Response.ok(reading).build();
+    }
+
 }
 
 //
-
