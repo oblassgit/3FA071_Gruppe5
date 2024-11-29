@@ -6,6 +6,7 @@ import dev.hv.db.ReadingDao;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -66,6 +67,23 @@ public class ReadingResource {
         return Response.ok(reading).build();
     }
 
-}
+    @Path("/{uuid}")
+    @PUT
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response updateReading(@PathParam("uuid") String uuid) {
+        Reading reading;
+        try {
+            databaseCon.openConnections(util.getProperties());
+            databaseCon.createAllTables();
 
-//
+            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+            reading = readingDao.getReading(UUID.fromString(uuid));
+            readingDao.updateReading(reading);
+
+        } catch (SQLException e) {
+            return Response.serverError().build();
+        }
+        return Response.ok(reading).build();
+    }
+
+}
