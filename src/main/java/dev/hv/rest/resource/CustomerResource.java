@@ -3,6 +3,7 @@ package dev.hv.rest.resource;
 import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
+import dev.hv.enums.Gender;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.DELETE;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Path("customers")
@@ -26,6 +28,33 @@ public class CustomerResource {
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
 
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCustomer() {
+        CustomerList customerList;
+
+
+        try {
+            databaseCon.openConnections(util.getProperties());
+            databaseCon.createAllTables();
+
+            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
+            customerList = new CustomerList(customerDao.getAllCustomers());
+
+        } catch (SQLException e) {
+            return Response.serverError().build();
+        }
+
+        if(customerList.isEmpty()) {
+            System.out.println("Liste ist leer");
+        } else {
+            System.out.println("......");
+            System.out.println(customerList.toString());
+        }
+        
+        return Response.ok(customerList).build();
+    }
 
     @Path("/{uuid}")
     @GET
@@ -86,7 +115,6 @@ public class CustomerResource {
 
         return Response.ok(response).build();
     }
-}
 
-//
+}
 
