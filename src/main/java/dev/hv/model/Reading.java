@@ -24,6 +24,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 
 public class Reading implements IReading {
+    @JsonProperty("uuid")
     private UUID id;
     private String comment;
     private ICustomer customer;

@@ -2,7 +2,6 @@ package dev.hv.rest.resource;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import dev.hv.model.Reading;
 
 import java.util.ArrayList;

@@ -27,6 +27,7 @@ public class Customer implements ICustomer {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthDate;
     private Gender gender;
+    @JsonProperty("uuid")
     private UUID id;
 
     public Customer (UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) {
