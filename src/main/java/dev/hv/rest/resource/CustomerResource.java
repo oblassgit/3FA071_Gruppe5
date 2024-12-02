@@ -84,7 +84,7 @@ public class CustomerResource {
     public Response deleteCustomer(@PathParam("uuid") String uuid) {
         Customer customer;
 
-        List<Reading> readings = new ArrayList<>();
+        List<Reading> readings;
 
         try {
             databaseCon.openConnections(util.getProperties());
@@ -94,13 +94,18 @@ public class CustomerResource {
 
 
             customer = customerDao.getCustomer(UUID.fromString(uuid));
-            readings = customerDao.getReadingsForCustomer(customer);
-            customerDao.deleteCustomer(customer);
+            if (customer != null) {
+                readings = customerDao.getReadingsForCustomer(customer);
+                customerDao.deleteCustomer(customer);
 
-            for (Reading reading:
-                 readings) {
-                reading.setCustomer(null);
-                System.out.println(reading);
+                for (Reading reading:
+                        readings) {
+                    reading.setCustomer(null);
+                    System.out.println(reading);
+                }
+
+            } else {
+                return Response.status(404).build();
             }
 
         } catch (SQLException e) {
