@@ -30,6 +30,8 @@ public class Customer implements ICustomer {
     @JsonProperty("uuid")
     private UUID id;
 
+    public Customer() {}
+
     public Customer (UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) {
         this.id = id;
         this.firstName = firstName;
