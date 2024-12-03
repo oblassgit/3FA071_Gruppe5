@@ -9,6 +9,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -44,13 +45,6 @@ public class CustomerResource {
 
         } catch (SQLException e) {
             return Response.serverError().build();
-        }
-
-        if(customerList.isEmpty()) {
-            System.out.println("Liste ist leer");
-        } else {
-            System.out.println("......");
-            System.out.println(customerList.toString());
         }
         
         return Response.ok(customerList).build();
@@ -101,7 +95,6 @@ public class CustomerResource {
                 for (Reading reading:
                         readings) {
                     reading.setCustomer(null);
-                    System.out.println(reading);
                 }
 
             } else {
@@ -147,6 +140,28 @@ public class CustomerResource {
         return Response.status(Response.Status.CREATED)
                 .entity(customer)
                 .build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response updateCustomer(Customer customer) {
+
+        databaseCon.openConnections(util.getProperties());
+
+        if (customer.getId() != null) {
+            try {
+                CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
+                customerDao.updateCustomer(customer);
+                return Response.ok().entity("Customer with uuid: " + customer.getId() + " was updated.").build();
+            } catch (SQLException e) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Could not find customer with uuid: " + customer.getId()).build();
+            }
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
+        }
+
+
     }
 
 }
