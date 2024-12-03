@@ -1,3 +1,4 @@
+package model;
 import dev.hv.model.Customer;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;

@@ -1,3 +1,4 @@
+package db;
 import dev.hv.ExampleDataCreator;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.KindOfMeter;
