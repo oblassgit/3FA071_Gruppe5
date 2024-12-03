@@ -23,7 +23,6 @@ public class ReadingResource {
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
 
-
     @Path("/{uuid}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -42,9 +41,10 @@ public class ReadingResource {
             return Response.serverError().build();
         }
 
-       
-        // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
-        // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer, LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
+        // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst",
+        // LocalDate.now(), Gender.M);
+        // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer,
+        // LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
 
         return Response.ok(reading).build();
     }
@@ -72,26 +72,19 @@ public class ReadingResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response putReading(Reading input) {
-
-        try {
-            databaseCon.openConnections(util.getProperties());
-            databaseCon.createAllTables();
-
-            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
-
-            if (input == null) {
-                return Response.serverError().build();
-            } else
+        databaseCon.openConnections(util.getProperties());
+        if (input.getId() != null) {
+            try {
+                ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
                 readingDao.updateReading(input);
-                
-        } catch (SQLException e) {
-            return Response.serverError().build();
-        }
+                return Response.ok().entity("Reading with uuid: " + input.getId() + " was updated.").build();
+            } catch (SQLException e) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Could not find reading with uuid : " + input.getId()).build();
 
-        return Response.ok(input).build();
-
+            }
+        } else
+            return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
     }
-
-}
 
 }
