@@ -1,8 +1,10 @@
 package dev.hv.rest.resource;
 
 import dev.hv.Util;
+import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.db.ReadingDao;
+import dev.hv.model.Customer;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -22,7 +24,7 @@ public class ReadingResource {
 
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
-    
+
 
     @Path("/{uuid}")
     @GET
@@ -42,10 +44,6 @@ public class ReadingResource {
             return Response.serverError().build();
         }
 
-       
-        // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
-        // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer, LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
-             
         return Response.ok(reading).build();
     }
 
@@ -67,28 +65,36 @@ public class ReadingResource {
         }
         return Response.ok(reading).build();
     }
-    
+
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createReading(Reading input) {
-        if (input == null || input.getCustomer() == null ) {
+        if (input == null || input.getCustomer() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid body.").build();
         }
 
         databaseCon.openConnections(util.getProperties());
         databaseCon.createAllTables();
 
-        UUID id = input.getId() == null ? UUID.randomUUID() : input.getId();
-        input.setId(id);
-
         try {
+            Customer customer = (Customer) input.getCustomer();
+            if (customer.getId() == null) {
+                customer.setId(UUID.randomUUID());
+                CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
+                customerDao.createCustomer(customer);
+            }
+
+            UUID id = input.getId() == null ? UUID.randomUUID() : input.getId();
+            input.setId(id);
+
             ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
             readingDao.createReading(input);
+
+            return Response.status(Response.Status.CREATED).entity(id.toString()).build();
+
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-
-        return Response.status(Response.Status.CREATED).entity(id).build();
     }
 }
