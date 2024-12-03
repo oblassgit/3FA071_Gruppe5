@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 
 @Path("customers")
-@Consumes(MediaType.APPLICATION_JSON)
 public class CustomerResource {
 
     private final Util util = new Util();
@@ -89,9 +88,7 @@ public class CustomerResource {
         try {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
-            databaseCon.truncateAllTables();
             CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-
 
             customer = customerDao.getCustomer(UUID.fromString(uuid));
             if (customer != null) {
