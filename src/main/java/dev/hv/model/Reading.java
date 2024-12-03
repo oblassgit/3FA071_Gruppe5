@@ -1,5 +1,6 @@
 package dev.hv.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.interfaces.ICustomer;
 import dev.hv.model.interfaces.IReading;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName(value = "reading")
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 
 public class Reading implements IReading {
