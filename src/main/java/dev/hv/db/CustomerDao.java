@@ -1,7 +1,9 @@
 package dev.hv.db;
 
+import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.enums.Gender;
+import dev.hv.model.Reading;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -25,6 +27,7 @@ public class CustomerDao {
     PreparedStatement countStatement;
     PreparedStatement selectStatement;
     PreparedStatement updateStatement;
+    PreparedStatement getReadingsForCustomerStatement;
 
     public CustomerDao(Connection con) throws SQLException {
         connection = con;
@@ -38,6 +41,7 @@ public class CustomerDao {
         selectStatement = connection.prepareStatement("select * from Customer");
         updateStatement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
                 "birth_date = ?, gender = ? where id = ?");
+        getReadingsForCustomerStatement = con.prepareStatement("select * from reading where customer_id = ?");
     }
 
     public void createCustomer(Customer customer) throws SQLException {
@@ -103,6 +107,21 @@ public class CustomerDao {
             list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"),
                     resultSet.getString("last_name"),
                     resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender"))));
+        }
+
+        return list;
+    }
+
+    public List<Reading> getReadingsForCustomer(Customer customer) throws SQLException {
+
+        getReadingsForCustomerStatement.setString(1, String.valueOf(customer.getId()));
+        ResultSet resultSet = getReadingsForCustomerStatement.executeQuery();
+        List<Reading> list = new ArrayList<>();
+
+        while (resultSet.next()) {
+            list.add(new Reading(resultSet.getObject("id", UUID.class), resultSet.getString("comment"), customer, resultSet.getDate("date_of_reading").toLocalDate(),
+                    KindOfMeter.valueOf(resultSet.getString("kind_of_meter")), resultSet.getDouble("meter_count"),
+                    resultSet.getString("meter_id"), resultSet.getBoolean("substitute")));
         }
 
         return list;
