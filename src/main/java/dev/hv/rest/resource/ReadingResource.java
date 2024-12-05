@@ -19,7 +19,7 @@ import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.UUID;
 
-@Path("reading")
+@Path("readings")
 public class ReadingResource {
 
     private Util util = new Util();
