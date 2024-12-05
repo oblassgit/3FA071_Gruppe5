@@ -13,10 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Properties;
 import java.util.UUID;
 
-import static jdk.jfr.internal.jfc.model.Constraint.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -24,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 public class CustomerResourceTest {
 
-    private static CustomerResource customerResource; // Deine Jersey-Ressource
+    private static CustomerResource customerResource;
     private static DatabaseCon mockDbConnection;
     private static CustomerDao mockCustomerDao;
 
@@ -32,7 +30,7 @@ public class CustomerResourceTest {
     public static void before() {
         mockDbConnection = mock(DatabaseCon.class);
         mockCustomerDao = mock(CustomerDao.class);
-        customerResource = new CustomerResource();
+        customerResource = new CustomerResource(mockDbConnection, mockCustomerDao);
     }
 
     @Test
