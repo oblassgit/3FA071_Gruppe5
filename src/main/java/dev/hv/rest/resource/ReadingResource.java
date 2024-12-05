@@ -41,11 +41,6 @@ public class ReadingResource {
             return Response.serverError().build();
         }
 
-        // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst",
-        // LocalDate.now(), Gender.M);
-        // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer,
-        // LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
-
         return Response.ok(reading).build();
     }
 
