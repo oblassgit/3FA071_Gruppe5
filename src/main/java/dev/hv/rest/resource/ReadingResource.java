@@ -10,6 +10,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -24,7 +25,6 @@ public class ReadingResource {
 
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
-
 
     @Path("/{uuid}")
     @GET
@@ -97,4 +97,25 @@ public class ReadingResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
+}
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response putReading(Reading input) {
+        databaseCon.openConnections(util.getProperties());
+        if (input.getId() != null) {
+            try {
+                ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+                readingDao.updateReading(input);
+                return Response.ok().entity("Reading with uuid: " + input.getId() + " was updated.").build();
+            } catch (SQLException e) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Could not find reading with uuid : " + input.getId()).build();
+
+            }
+        } else
+            return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
+    }
+
 }
