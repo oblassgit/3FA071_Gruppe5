@@ -102,7 +102,7 @@ public class ReadingTest {
     }
 
     @Test
-    public void testToSring() {
+    public void testToString() {
         assertEquals(reading.toString(),
                 "Reading{" + "id=" + testId + ", comment='testComment', customer=" + customer.toString()
                         + ", dateOfReading=" + testDate + ", kindOfMeter=" + KindOfMeter.WASSER
