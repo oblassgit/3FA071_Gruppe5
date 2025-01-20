@@ -4,6 +4,7 @@ import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.db.ReadingDao;
+import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.Consumes;
@@ -14,10 +15,15 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Path("readings")
@@ -98,6 +104,7 @@ public class ReadingResource {
         }
     }
 
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
@@ -117,4 +124,48 @@ public class ReadingResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
     }
 
+}
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getReadingsByParameter(
+            @QueryParam("customer") String cutstomerIdRaw,
+            @QueryParam("start") String startDateRaw,
+            @QueryParam("end") String endDateRaw,
+            @QueryParam("kindOfMeter") String kindOfMeterRaw) {
+
+        List<Reading> readings = new ArrayList<>();
+        try {
+            UUID customerId;
+            LocalDate startDate = null;
+            LocalDate endDate = null;
+            KindOfMeter kindOfMeter = null;
+            if (cutstomerIdRaw == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("customerId is not defined").build();
+            } else {
+                customerId = UUID.fromString(cutstomerIdRaw);
+            }
+
+            if (kindOfMeterRaw != null) {
+                kindOfMeter = KindOfMeter.valueOf(kindOfMeterRaw);
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            if (startDateRaw != null) {
+                startDate = LocalDate.parse(startDateRaw, formatter);
+            }
+            if (endDateRaw != null) {
+                endDate = LocalDate.parse(endDateRaw, formatter);
+            }
+
+            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+
+            readings = readingDao.getReadings(customerId, startDate, endDate, kindOfMeter);
+
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+
+        return Response.ok(readings).build();
+    }
 }
