@@ -136,7 +136,6 @@ public class CustomerResource {
         }
 
         try {
-            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
             customerDao.createCustomer(customer);
         } catch (SQLException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
