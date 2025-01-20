@@ -1,9 +1,11 @@
 package model;
 import dev.hv.model.Customer;
+import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Reading;
+import dev.hv.rest.resource.ReadingResource;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.Properties;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -27,6 +32,11 @@ public class ReadingTest {
     static Reading reading;
     static UUID testId = UUID.randomUUID();
     static LocalDate testDate = LocalDate.now();
+    
+    private static DatabaseCon mockDbConnection;
+    private static Reading mockReading;
+    private static CustomerDao mockCustomerDao;
+    private static ReadingResource readingResource;
 
     @BeforeEach
     public void before() throws IOException {
@@ -41,6 +51,10 @@ public class ReadingTest {
         customer = new Customer(UUID.randomUUID(), "Stechus", "Kaktus", LocalDate.now(), Gender.M);
 
         reading = new Reading(testId, "testComment", customer, testDate, KindOfMeter.WASSER, 5.5, "meterId", true);
+
+        mockDbConnection = mock(DatabaseCon.class);
+        mockCustomerDao = mock(CustomerDao.class);
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
     }
 
     @Test
