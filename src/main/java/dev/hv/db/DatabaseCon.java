@@ -27,7 +27,7 @@ public class DatabaseCon implements IDatabaseConnections {
             id UUID NOT NULL,
             customer_id UUID,
             comment VARCHAR(1000) NOT NULL,
-            date_of_reading TIMESTAMP NOT NULL,
+            date_of_reading DATE NOT NULL,
             meter_count INT NOT NULL,
             meter_id VARCHAR(100) NOT NULL,
             kind_of_meter ENUM('HEIZUNG', 'STROM', 'WASSER', 'UNBEKANNT'),
