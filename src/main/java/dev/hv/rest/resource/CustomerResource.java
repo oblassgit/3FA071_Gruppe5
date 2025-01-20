@@ -26,8 +26,22 @@ import java.util.UUID;
 public class CustomerResource {
 
     private final Util util = new Util();
-    private final DatabaseCon databaseCon = new DatabaseCon();
 
+    private final DatabaseCon databaseCon;
+    private final CustomerDao customerDao;
+
+    // constructor for jackson
+    public CustomerResource() throws SQLException {
+        databaseCon = new DatabaseCon();
+        databaseCon.openConnections(util.getProperties());
+        customerDao = new CustomerDao(databaseCon.getConnection());
+    }
+
+    // dependency injection for testing
+    public CustomerResource(DatabaseCon databaseCon, CustomerDao customerDao) {
+        this.databaseCon = databaseCon;
+        this.customerDao = customerDao;
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -39,7 +53,6 @@ public class CustomerResource {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
 
-            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
             customerList = new CustomerList(customerDao.getAllCustomers());
 
         } catch (SQLException e) {
@@ -60,7 +73,6 @@ public class CustomerResource {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
 
-            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
             customer = customerDao.getCustomer(UUID.fromString(uuid));
 
         } catch (SQLException e) {
@@ -82,7 +94,6 @@ public class CustomerResource {
         try {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
-            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
 
             customer = customerDao.getCustomer(UUID.fromString(uuid));
             if (customer != null) {
@@ -125,7 +136,6 @@ public class CustomerResource {
         }
 
         try {
-            CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
             customerDao.createCustomer(customer);
         } catch (SQLException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -148,7 +158,6 @@ public class CustomerResource {
 
         if (customer.getId() != null) {
             try {
-                CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
                 customerDao.updateCustomer(customer);
                 return Response.ok().entity("Customer with uuid: " + customer.getId() + " was updated.").build();
             } catch (SQLException e) {
