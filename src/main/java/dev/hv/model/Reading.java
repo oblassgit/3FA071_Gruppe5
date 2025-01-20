@@ -1,5 +1,6 @@
 package dev.hv.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.interfaces.ICustomer;
 import dev.hv.model.interfaces.IReading;
@@ -19,13 +20,15 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
 @JsonTypeName(value = "reading")
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 
 public class Reading implements IReading {
+    @JsonProperty("uuid")
     private UUID id;
     private String comment;
     private ICustomer customer;
-    @JsonProperty("birthDate")
+    @JsonProperty("dateOfReading")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -34,6 +37,8 @@ public class Reading implements IReading {
     private Double meterCount;
     private String meterId;
     private Boolean substitute;   
+
+    public Reading () {}
 
     public Reading (UUID id, String comment, ICustomer customer, LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount, String meterId, Boolean substitute) {
         this.id = id;
