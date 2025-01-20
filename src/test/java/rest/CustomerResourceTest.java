@@ -11,6 +11,7 @@ import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.model.Customer;
+import dev.hv.rest.resource.CustomerList;
 import dev.hv.rest.resource.CustomerResource;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -75,6 +76,29 @@ public class CustomerResourceTest {
     }
 
     @Test
+
+    public void testGetAllCustomers() throws SQLException, JsonProcessingException {
+        UUID testUuid1 = UUID.randomUUID();
+        UUID testUuid2 = UUID.randomUUID();
+        Customer mockCustomer1 = new Customer(testUuid1, "John", "Doe", LocalDate.now(), Gender.M);
+        Customer mockCustomer2 = new Customer(testUuid2, "John", "Doe", LocalDate.now(), Gender.M);
+
+        List<Customer> allCustomers = new ArrayList<>();
+        allCustomers.add(mockCustomer1);
+        allCustomers.add(mockCustomer2);
+        CustomerList customerList = new CustomerList(allCustomers);
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
+
+        //
+        Response response = customerResource.getAllCustomers();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
+    }
+  
     public void testCreateCustomer() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
@@ -82,9 +106,11 @@ public class CustomerResourceTest {
         Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer);
 
         Response response = customerResource.createCustomer(mockCustomer);
+
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
+
 
         JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
