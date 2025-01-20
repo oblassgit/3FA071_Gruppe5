@@ -97,7 +97,6 @@ public class ReadingResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
-}
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
