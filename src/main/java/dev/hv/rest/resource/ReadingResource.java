@@ -101,7 +101,7 @@ public class ReadingResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response putReading(Reading input) {
+    public Response updateReading(Reading input) {
         databaseCon.openConnections(util.getProperties());
         if (input.getId() != null) {
             try {
