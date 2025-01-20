@@ -18,8 +18,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -33,7 +31,6 @@ public class ReadingResource {
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
 
-    
     @Path("/{uuid}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -121,7 +118,7 @@ public class ReadingResource {
             LocalDate endDate = null;
             KindOfMeter kindOfMeter = null;
             if (cutstomerIdRaw == null) {
-                throw new Exception("customerId is not defined");
+                return Response.status(Response.Status.BAD_REQUEST).entity("customerId is not defined").build();
             } else {
                 customerId = UUID.fromString(cutstomerIdRaw);
             }
@@ -138,59 +135,14 @@ public class ReadingResource {
                 endDate = LocalDate.parse(endDateRaw, formatter);
             }
 
-            readings = getReadings(customerId, startDate, endDate, kindOfMeter);
+            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
 
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            readings = readingDao.getReadings(customerId, startDate, endDate, kindOfMeter);
+
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
         return Response.ok(readings).build();
-    }
-
-    // Helpers
-    private List<Reading> getReadings(UUID customerId, LocalDate startDate, LocalDate endDate,
-            KindOfMeter kindOfMeter) throws Exception {
-        List<Reading> readings = new ArrayList<>();
-
-        String stmtString = "SELECT * FROM reading WHERE customer_id = ?";
-        if (kindOfMeter != null) {
-            stmtString = stmtString + " AND kind_of_meter = ?";
-        }
-        if (startDate != null) {
-            stmtString = stmtString + " AND date_of_reading > ?";
-        }
-        if (endDate != null) {
-            stmtString = stmtString + " AND date_of_reading < ?";
-        }
-
-        databaseCon.openConnections(util.getProperties());
-        databaseCon.createAllTables();
-        PreparedStatement stmt = databaseCon.getConnection().prepareStatement(stmtString);
-
-        int Index = 1;
-        stmt.setString(Index++, customerId.toString());
-        if (kindOfMeter != null) {
-            stmt.setString(Index++, kindOfMeter.toString());
-        }
-        if (startDate != null) {
-            stmt.setString(Index++, startDate.toString());
-        }
-        if (endDate != null) {
-            stmt.setString(Index++, endDate.toString());
-        }
-
-        ResultSet resultSet = stmt.executeQuery();
-
-        CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
-        Customer customer = customerDao.getCustomer(customerId);
-
-        while (resultSet.next()) {
-            readings.add(new Reading(UUID.fromString(resultSet.getString("id")), resultSet.getString("comment"),
-                    customer, resultSet.getDate("date_of_reading").toLocalDate(),
-                    KindOfMeter.valueOf(resultSet.getString("kind_of_meter")), resultSet.getDouble("meter_count"),
-                    resultSet.getString("meter_id"), resultSet.getBoolean("substitute")));
-        }
-
-        return readings;
     }
 }
