@@ -28,7 +28,7 @@ public class Reading implements IReading {
     private UUID id;
     private String comment;
     private ICustomer customer;
-    @JsonProperty("birthDate")
+    @JsonProperty("dateOfReading")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -37,6 +37,8 @@ public class Reading implements IReading {
     private Double meterCount;
     private String meterId;
     private Boolean substitute;   
+
+    public Reading () {}
 
     public Reading (UUID id, String comment, ICustomer customer, LocalDate dateOfReading, KindOfMeter kindOfMeter, Double meterCount, String meterId, Boolean substitute) {
         this.id = id;

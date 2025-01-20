@@ -1,11 +1,16 @@
 package dev.hv.rest.resource;
 
 import dev.hv.Util;
+import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.db.ReadingDao;
+import dev.hv.model.Customer;
 import dev.hv.model.Reading;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -15,12 +20,11 @@ import jakarta.ws.rs.core.Response;
 import java.sql.SQLException;
 import java.util.UUID;
 
-@Path("reading")
+@Path("readings")
 public class ReadingResource {
 
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
-
 
     @Path("/{uuid}")
     @GET
@@ -39,10 +43,6 @@ public class ReadingResource {
         } catch (SQLException e) {
             return Response.serverError().build();
         }
-
-       
-        // Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
-        // Reading reading2 = new Reading(UUID.randomUUID(), "testComment", customer, LocalDate.now(), KindOfMeter.WASSER, 5.5, "meterId", true);
 
         return Response.ok(reading).build();
     }
@@ -66,6 +66,55 @@ public class ReadingResource {
         return Response.ok(reading).build();
     }
 
-}
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createReading(Reading input) {
+        if (input == null || input.getCustomer() == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid body.").build();
+        }
 
-//
+        databaseCon.openConnections(util.getProperties());
+        databaseCon.createAllTables();
+
+        try {
+            Customer customer = (Customer) input.getCustomer();
+            if (customer.getId() == null) {
+                customer.setId(UUID.randomUUID());
+                CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
+                customerDao.createCustomer(customer);
+            }
+
+            UUID id = input.getId() == null ? UUID.randomUUID() : input.getId();
+            input.setId(id);
+
+            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+            readingDao.createReading(input);
+
+            return Response.status(Response.Status.CREATED).entity(id.toString()).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response updateReading(Reading input) {
+        databaseCon.openConnections(util.getProperties());
+        if (input.getId() != null) {
+            try {
+                ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+                readingDao.updateReading(input);
+                return Response.ok().entity("Reading with uuid: " + input.getId() + " was updated.").build();
+            } catch (SQLException e) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Could not find reading with uuid : " + input.getId()).build();
+
+            }
+        } else
+            return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
+    }
+
+}
