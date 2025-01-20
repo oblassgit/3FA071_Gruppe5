@@ -111,15 +111,15 @@ public class ReadingDao {
             KindOfMeter kindOfMeter) throws SQLException {
         List<Reading> readings = new ArrayList<>();
 
-        String stmtString = "SELECT * FROM reading WHERE customer_id = " + customerId;
+        String stmtString = "SELECT * FROM reading WHERE customer_id = '" + customerId + "'";
         if (kindOfMeter != null) {
-            stmtString = stmtString + " AND kind_of_meter = " + kindOfMeter;
+            stmtString = stmtString + " AND kind_of_meter = '" + kindOfMeter + "'";
         }
         if (startDate != null) {
-            stmtString = stmtString + " AND date_of_reading > " + startDate;
+            stmtString = stmtString + " AND date_of_reading > '" + startDate + "'";
         }
         if (endDate != null) {
-            stmtString = stmtString + " AND date_of_reading < " + endDate;
+            stmtString = stmtString + " AND date_of_reading < '" + endDate + "'";
         }
         PreparedStatement stmt = connection.prepareStatement(stmtString);
 

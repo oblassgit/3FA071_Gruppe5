@@ -31,6 +31,20 @@ public class ReadingResource {
 
     private Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
+    private ReadingDao readingDao;
+
+    // constructor for jackson
+    public ReadingResource() throws SQLException {
+        databaseCon = new DatabaseCon();
+        databaseCon.openConnections(util.getProperties());
+        readingDao = new ReadingDao(databaseCon.getConnection());
+    }
+
+    // dependency injection for testing
+    public ReadingResource(DatabaseCon databaseCon, ReadingDao readingDao) {
+        this.databaseCon = databaseCon;
+        this.readingDao = readingDao;
+    }
 
     @Path("/{uuid}")
     @GET
@@ -40,10 +54,9 @@ public class ReadingResource {
         Reading reading;
 
         try {
-            databaseCon.openConnections(util.getProperties());
+            databaseCon.getConnection();
             databaseCon.createAllTables();
 
-            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
             reading = readingDao.getReading(UUID.fromString(uuid));
 
         } catch (SQLException e) {
@@ -59,10 +72,9 @@ public class ReadingResource {
     public Response deleteReading(@PathParam("uuid") String uuid) {
         Reading reading;
         try {
-            databaseCon.openConnections(util.getProperties());
+            databaseCon.getConnection();
             databaseCon.createAllTables();
 
-            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
             reading = readingDao.getReading(UUID.fromString(uuid));
             readingDao.deleteReading(reading);
 
@@ -80,7 +92,7 @@ public class ReadingResource {
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid body.").build();
         }
 
-        databaseCon.openConnections(util.getProperties());
+        databaseCon.getConnection();
         databaseCon.createAllTables();
 
         try {
@@ -94,7 +106,6 @@ public class ReadingResource {
             UUID id = input.getId() == null ? UUID.randomUUID() : input.getId();
             input.setId(id);
 
-            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
             readingDao.createReading(input);
 
             return Response.status(Response.Status.CREATED).entity(id.toString()).build();
@@ -104,15 +115,13 @@ public class ReadingResource {
         }
     }
 
-
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response updateReading(Reading input) {
-        databaseCon.openConnections(util.getProperties());
+        databaseCon.getConnection();
         if (input.getId() != null) {
             try {
-                ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
                 readingDao.updateReading(input);
                 return Response.ok().entity("Reading with uuid: " + input.getId() + " was updated.").build();
             } catch (SQLException e) {
@@ -123,8 +132,6 @@ public class ReadingResource {
         } else
             return Response.status(Response.Status.BAD_REQUEST).entity("Please provide a valid uuid!").build();
     }
-
-}
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -140,25 +147,39 @@ public class ReadingResource {
             LocalDate startDate = null;
             LocalDate endDate = null;
             KindOfMeter kindOfMeter = null;
-            if (cutstomerIdRaw == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("customerId is not defined").build();
-            } else {
-                customerId = UUID.fromString(cutstomerIdRaw);
+            try {
+                if (cutstomerIdRaw == null) {
+                    throw new Exception("customerId is not defined");
+                } else {
+                    customerId = UUID.fromString(cutstomerIdRaw);
+                }
+
+                if (kindOfMeterRaw != null) {
+                    kindOfMeter = KindOfMeter.valueOf(kindOfMeterRaw.toUpperCase());
+                }
+
+                String pattern = "yyyy-MM-dd";
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                if (startDateRaw != null) {
+                    if (util.validateDateTime(startDateRaw, pattern)) {
+                        startDate = LocalDate.parse(startDateRaw, formatter);
+                    } else {
+                        throw new Exception("Invalid start format");
+                    }
+                }
+                if (endDateRaw != null) {
+                    if (util.validateDateTime(endDateRaw, pattern)) {
+                        endDate = LocalDate.parse(endDateRaw, formatter);
+                    } else {
+                        throw new Exception("Invalid end format");
+                    }
+                }
+            } catch (Exception e) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
             }
 
-            if (kindOfMeterRaw != null) {
-                kindOfMeter = KindOfMeter.valueOf(kindOfMeterRaw);
-            }
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            if (startDateRaw != null) {
-                startDate = LocalDate.parse(startDateRaw, formatter);
-            }
-            if (endDateRaw != null) {
-                endDate = LocalDate.parse(endDateRaw, formatter);
-            }
-
-            ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+            databaseCon.getConnection();
+            databaseCon.createAllTables();
 
             readings = readingDao.getReadings(customerId, startDate, endDate, kindOfMeter);
 
