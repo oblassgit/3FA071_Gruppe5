@@ -45,6 +45,8 @@ public class CustomerResourceTest {
     public static void before() {
         mockDbConnection = mock(DatabaseCon.class);
         mockCustomerDao = mock(CustomerDao.class);
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+
         customerResource = new CustomerResource(mockDbConnection, mockCustomerDao);
     }
 
@@ -55,7 +57,6 @@ public class CustomerResourceTest {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
 
-        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
 
 
@@ -75,6 +76,7 @@ public class CustomerResourceTest {
     }
 
     @Test
+
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
         UUID testUuid1 = UUID.randomUUID();
         UUID testUuid2 = UUID.randomUUID();
@@ -91,14 +93,26 @@ public class CustomerResourceTest {
 
         //
         Response response = customerResource.getAllCustomers();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
-        System.out.println(jsonResponse);
-
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
 
         JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
+    }
+  
+    public void testCreateCustomer() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+
+        Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer);
+
+        Response response = customerResource.createCustomer(mockCustomer);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
@@ -118,7 +132,6 @@ public class CustomerResourceTest {
         readings.add(mockReading1);
         ReadingList readingList = new ReadingList(readings);
 
-        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer);
         when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
         when(mockCustomerDao.getReadingsForCustomer(mockCustomer)).thenReturn(readingList);
