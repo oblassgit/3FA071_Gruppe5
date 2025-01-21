@@ -74,6 +74,32 @@ public class CustomerResourceTest {
     }
 
     @Test
+    public void testUpdateCustomerOk() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+
+        Mockito.doNothing().when(mockCustomerDao).updateCustomer(mockCustomer);
+
+        Response response = customerResource.updateCustomer(mockCustomer);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("Customer with uuid: " + testUuid + " was updated.", response.getEntity());
+    } 
+
+    @Test
+    public void testUpdateCustomerNotFound() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).updateCustomer(mockCustomer);
+
+        Response response = customerResource.updateCustomer(mockCustomer);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals("Could not find customer with uuid: " + testUuid, response.getEntity());
+    } 
+    
+    @Test
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
         UUID testUuid1 = UUID.randomUUID();
         UUID testUuid2 = UUID.randomUUID();
