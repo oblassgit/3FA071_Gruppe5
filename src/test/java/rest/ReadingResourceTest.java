@@ -1,31 +1,71 @@
 package rest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.UUID;
 
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import dev.hv.db.CustomerDao;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import dev.hv.db.DatabaseCon;
-import dev.hv.rest.resource.CustomerResource;
+import dev.hv.db.ReadingDao;
+import dev.hv.enums.Gender;
+import dev.hv.enums.KindOfMeter;
+import dev.hv.model.Customer;
+import dev.hv.model.Reading;
+import dev.hv.rest.resource.ReadingResource;
+import jakarta.ws.rs.core.Response;
 
 public class ReadingResourceTest {
-    
- private static CustomerResource customerResource;
+    private static ReadingResource readingResource;
+    private static ReadingDao mockReadingDao;
     private static DatabaseCon mockDbConnection;
-    private static CustomerDao mockCustomerDao;
+    private static Customer mockCustomer;
 
     @BeforeAll
-    public static void before() {
+    public static void before() throws SQLException {
         mockDbConnection = mock(DatabaseCon.class);
-        mockCustomerDao = mock(CustomerDao.class);
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
 
-        customerResource = new CustomerResource(mockDbConnection, mockCustomerDao);
+        mockCustomer = new Customer(UUID.randomUUID(), "Hugh", "Jass", LocalDate.now(), Gender.D);
+
+        mockReadingDao = mock(ReadingDao.class);
+        readingResource = new ReadingResource(mockDbConnection, mockReadingDao);
     }
 
-    
-    
+    @Test
+    public void testDeleteReading() throws SQLException, JsonProcessingException {
+        UUID mockReadingUuid = UUID.randomUUID();
+        Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+
+        Mockito.doNothing().when(mockReadingDao).deleteReading(mockReading);
+        when(mockReadingDao.getReading(mockReadingUuid)).thenReturn(mockReading);
+
+        Response response = readingResource.deleteReading(mockReadingUuid.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(
+                getClass().getResourceAsStream("/json schemas/JSON_Schema_Reading.json"))));
+        Schema schema = SchemaLoader.load(schemaJson);
+
+        JSONObject responseJson = new JSONObject(jsonResponse);
+        assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    }
 }
