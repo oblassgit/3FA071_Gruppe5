@@ -1,6 +1,7 @@
 package rest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.sql.Connection;
@@ -83,6 +84,8 @@ public class ReadingResourceTest {
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Reading.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
@@ -102,10 +105,10 @@ public class ReadingResourceTest {
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Reading.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
-
-
 
 }
