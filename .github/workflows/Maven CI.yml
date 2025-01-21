@@ -36,29 +36,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      # Edit the database URL property
-      - name: Edit URL property
-        uses: Reedyuk/write-properties@v1.0.3
-        with:
-          path: "src/main/resources/DbData.properties"
-          property: runner.db.url
-          value: "jdbc:mariadb://localhost:3800/some_test?allowMultiQueries=true"
-      
-      # Edit the database user property
-      - name: Edit User property
-        uses: Reedyuk/write-properties@v1.0.3
-        with:
-          path: "src/main/resources/DbData.properties"
-          property: runner.db.user
-          value: developer
-      
-      # Edit the database password property
-      - name: Edit Password property
-        uses: Reedyuk/write-properties@v1.0.3
-        with:
-          path: "src/main/resources/DbData.properties"
-          property: runner.db.pw
-          value: ${{ secrets.DatabasePassword }}
+
+      - name: Add secrets to properties file
+        run: |
+          echo "runner.db.url=jdbc:mariadb://localhost:3306/some_test" >> src/main/resources/DbData.properties
+          echo "runner.db.user=developer" >> src/main/resources/DbData.properties
+          echo "runner.db.pw=${{ secrets.DatabasePassword }}" >> src/main/resources/DbData.properties
 
       # Build the project with Maven
       - name: Build with Maven
