@@ -36,14 +36,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: whoami
-        run: whoami
       # Edit the database URL property
       - name: Edit URL property
         uses: Reedyuk/write-properties@v1.0.3
         with:
           path: "src/main/resources/DbData.properties"
-          property: ${{ github.actor }}.db.url
+          property: runner.db.url
           value: "jdbc:mariadb://localhost:3800/some_test?allowMultiQueries=true"
       
       # Edit the database user property
@@ -51,15 +49,15 @@ jobs:
         uses: Reedyuk/write-properties@v1.0.3
         with:
           path: "src/main/resources/DbData.properties"
-          property: ${{ github.actor }}.db.user
-          value: ${{ github.actor }}
+          property: runner.db.user
+          value: developer
       
       # Edit the database password property
       - name: Edit Password property
         uses: Reedyuk/write-properties@v1.0.3
         with:
           path: "src/main/resources/DbData.properties"
-          property: ${{ github.actor }}.db.pw
+          property: runner.db.pw
           value: ${{ secrets.DatabasePassword }}
 
       # Build the project with Maven
