@@ -32,7 +32,7 @@ jobs:
       - name: Check MariaDB connection
         run: |
           docker ps
-          mysql -h localhost -P 3307 -u developer
+          mysql -h localhost -P 3800 -u developer
 
       # Set up JDK 21
       - name: Set up JDK 21
