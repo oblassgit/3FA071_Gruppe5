@@ -29,6 +29,20 @@ jobs:
           mysql user: 'developer'
           mysql password: ${{ secrets.DatabasePassword }}
 
+      - name: Wait for MariaDB to be healthy
+        run: |
+          for i in {1..10}; do
+            if [ "$(docker inspect --format='{{.State.Health.Status}}' great_haslett)" == "healthy" ]; then
+              echo "MariaDB is healthy"
+              exit 0
+            else
+              echo "Waiting for MariaDB to be healthy..."
+              sleep 10
+            fi
+          done
+          echo "MariaDB did not become healthy in time"
+          exit 1
+
       - name: Check MariaDB connection
         run: |
           docker ps
