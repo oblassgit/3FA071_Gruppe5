@@ -29,6 +29,9 @@ jobs:
           mysql user: 'developer'
           mysql password: ${{ secrets.DatabasePassword }}
 
+      - name: Check MariaDB connection
+        run: mysql -h localhost -P 3307 -u developer -p
+
       # Set up JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4
