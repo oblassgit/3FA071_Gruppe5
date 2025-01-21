@@ -30,7 +30,10 @@ jobs:
           #mysql password: ${{ secrets.DatabasePassword }}
 
       - name: Check MariaDB connection
-        run: mysql -h localhost -P 3307 -u developer
+        run: |
+          docker start mariadb
+          docker logs mariadb
+          mysql -h localhost -P 3307 -u developer
 
       # Set up JDK 21
       - name: Set up JDK 21
