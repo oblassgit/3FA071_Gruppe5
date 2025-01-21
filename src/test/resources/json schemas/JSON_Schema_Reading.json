@@ -14,7 +14,7 @@
                 "dateOfReading",
                 "meterId",
                 "substitute",
-                "metercount",
+                "meterCount",
                 "kindOfMeter"
             ],
             "properties": {
@@ -68,7 +68,7 @@
                 "substitute": {
                     "type": "boolean"
                 },
-                "metercount": {
+                "meterCount": {
                     "type": "number"
                 },
                 "kindOfMeter": {
