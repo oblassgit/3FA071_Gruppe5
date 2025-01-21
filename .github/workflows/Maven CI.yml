@@ -31,10 +31,8 @@ jobs:
 
       - name: Check MariaDB connection
         run: |
-          echo "Waiting for MariaDB to start..."
-          sleep 20  # Warten, damit MariaDB vollständig hochfährt
           docker ps
-          mysql -h localhost -P 3800 -u developer -p${{ secrets.DatabasePassword }} -e "SHOW DATABASES;"
+          mmysql -h 127.0.0.1 -P 3306 -u developer -p${{ secrets.DatabasePassword }}
 
       # Set up JDK 21
       - name: Set up JDK 21
