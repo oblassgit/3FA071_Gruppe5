@@ -15,10 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create test database
-        run: |
-          **sudo systemctl start mysql** mysql -uroot -proot < databases/tracker/create_databases.sql
-
       # Set up MariaDB
       - name: Setup MariaDB
         uses: getong/mariadb-action@v1.11
@@ -31,12 +27,14 @@ jobs:
           mysql database: 'some_test'
           mysql root password: ${{ secrets.RootPassword }}
           mysql user: 'developer'
-          #mysql password: ${{ secrets.DatabasePassword }}
+          mysql password: ${{ secrets.DatabasePassword }}
 
       - name: Check MariaDB connection
         run: |
+          echo "Waiting for MariaDB to start..."
+          sleep 20  # Warten, damit MariaDB vollständig hochfährt
           docker ps
-          mysql -h localhost -P 3800 -u developer
+          mysql -h localhost -P 3800 -u developer -p${{ secrets.DatabasePassword }} -e "SHOW DATABASES;"
 
       # Set up JDK 21
       - name: Set up JDK 21
