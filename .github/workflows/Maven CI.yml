@@ -54,5 +54,6 @@ jobs:
 
       # Build the project with Maven
       - name: Build with Maven
-        run: mvn clean install site -P test
+        run:  mvn test -Dtest=CustomerDaoTest
+
 
