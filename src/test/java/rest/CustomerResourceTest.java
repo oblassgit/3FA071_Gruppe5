@@ -38,11 +38,20 @@ public class CustomerResourceTest {
     private static CustomerResource customerResource;
     private static DatabaseCon mockDbConnection;
     private static CustomerDao mockCustomerDao;
+    private static UUID testUuid1;
+    private static UUID testUuid2;
+    private static Customer mockCustomer1;
+    private static Customer mockCustomer2;
 
     @BeforeAll
     public static void before() {
         mockDbConnection = mock(DatabaseCon.class);
         mockCustomerDao = mock(CustomerDao.class);
+
+        testUuid1 = UUID.randomUUID();
+        testUuid2 = UUID.randomUUID();
+        mockCustomer1 = new Customer(testUuid1, "John", "Doe", LocalDate.now(), Gender.M);
+        mockCustomer2 = new Customer(testUuid2, "John", "Doe", LocalDate.now(), Gender.M);
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
 
         customerResource = new CustomerResource(mockDbConnection, mockCustomerDao);
@@ -50,20 +59,15 @@ public class CustomerResourceTest {
 
     @Test
     public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
+        when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
 
-        // Arrange
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
-
-        when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
-
-        Response response = customerResource.getCustomer(testUuid.toString());
+        Response response = customerResource.getCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(mockCustomer, response.getEntity());
+        assertEquals(mockCustomer1, response.getEntity());
 
         JSONObject schemaJson = new JSONObject(new JSONTokener(
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
@@ -75,37 +79,26 @@ public class CustomerResourceTest {
 
     @Test
     public void testUpdateCustomerOk() throws SQLException {
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+        Mockito.doNothing().when(mockCustomerDao).updateCustomer(mockCustomer1);
 
-        Mockito.doNothing().when(mockCustomerDao).updateCustomer(mockCustomer);
-
-        Response response = customerResource.updateCustomer(mockCustomer);
+        Response response = customerResource.updateCustomer(mockCustomer1);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals("Customer with uuid: " + testUuid + " was updated.", response.getEntity());
+        assertEquals("Customer with uuid: " + testUuid1 + " was updated.", response.getEntity());
     } 
 
     @Test
     public void testUpdateCustomerNotFound() throws SQLException, JsonProcessingException {
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).updateCustomer(mockCustomer1);
 
-        Mockito.doThrow(new SQLException()).when(mockCustomerDao).updateCustomer(mockCustomer);
-
-        Response response = customerResource.updateCustomer(mockCustomer);
+        Response response = customerResource.updateCustomer(mockCustomer1);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertEquals("Could not find customer with uuid: " + testUuid, response.getEntity());
+        assertEquals("Could not find customer with uuid: " + testUuid1, response.getEntity());
     } 
     
     @Test
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
-        UUID testUuid1 = UUID.randomUUID();
-        UUID testUuid2 = UUID.randomUUID();
-        Customer mockCustomer1 = new Customer(testUuid1, "John", "Doe", LocalDate.now(), Gender.M);
-        Customer mockCustomer2 = new Customer(testUuid2, "John", "Doe", LocalDate.now(), Gender.M);
-
         List<Customer> allCustomers = new ArrayList<>();
         allCustomers.add(mockCustomer1);
         allCustomers.add(mockCustomer2);
@@ -114,7 +107,6 @@ public class CustomerResourceTest {
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
 
-        //
         Response response = customerResource.getAllCustomers();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
@@ -134,12 +126,9 @@ public class CustomerResourceTest {
 
     @Test
     public void testCreateCustomer() throws SQLException, JsonProcessingException {
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+        Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer1);
 
-        Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer);
-
-        Response response = customerResource.createCustomer(mockCustomer);
+        Response response = customerResource.createCustomer(mockCustomer1);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
@@ -155,11 +144,9 @@ public class CustomerResourceTest {
 
     @Test
     public void testDeleteCustomerOK() throws SQLException, JsonProcessingException {
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
-        Reading mockReading = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG,
+        Reading mockReading = new Reading(UUID.randomUUID(), "", mockCustomer1, LocalDate.now(), KindOfMeter.HEIZUNG,
                 0.0, "", false);
-        Reading mockReading1 = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG,
+        Reading mockReading1 = new Reading(UUID.randomUUID(), "", mockCustomer1, LocalDate.now(), KindOfMeter.HEIZUNG,
                 0.0, "", false);
 
         List<Reading> readings = new ArrayList<>();
@@ -167,11 +154,11 @@ public class CustomerResourceTest {
         readings.add(mockReading1);
         ReadingList readingList = new ReadingList(readings);
 
-        Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer);
-        when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
-        when(mockCustomerDao.getReadingsForCustomer(mockCustomer)).thenReturn(readingList);
+        Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer1);
+        when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
+        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(readingList);
 
-        Response response = customerResource.deleteCustomer(testUuid.toString());
+        Response response = customerResource.deleteCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
@@ -187,14 +174,11 @@ public class CustomerResourceTest {
 
     @Test
     public void testDeleteCustomerNotFound() throws SQLException, JsonProcessingException {
-        UUID testUuid = UUID.randomUUID();
-        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+        Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer1);
+        when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(null);
+        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(null);
 
-        Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer);
-        when(mockCustomerDao.getCustomer(testUuid)).thenReturn(null);
-        when(mockCustomerDao.getReadingsForCustomer(mockCustomer)).thenReturn(null);
-
-        Response response = customerResource.deleteCustomer(testUuid.toString());
+        Response response = customerResource.deleteCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
