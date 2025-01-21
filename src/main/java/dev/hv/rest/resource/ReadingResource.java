@@ -85,7 +85,7 @@ public class ReadingResource {
     }
 
     @POST
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createReading(Reading input) {
         if (input == null || input.getCustomer() == null) {
@@ -108,7 +108,7 @@ public class ReadingResource {
 
             readingDao.createReading(input);
 
-            return Response.status(Response.Status.CREATED).entity(id.toString()).build();
+            return Response.status(Response.Status.CREATED).entity(input).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
