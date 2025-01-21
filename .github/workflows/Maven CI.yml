@@ -43,6 +43,9 @@ jobs:
           echo "runner.db.user=developer" >> src/main/resources/DbData.properties
           echo "runner.db.pw=${{ secrets.DatabasePassword }}" >> src/main/resources/DbData.properties
 
+      - name: Verify properties file content
+        run: cat src/main/resources/CI_Runner.properties
+
       # Build the project with Maven
       - name: Build with Maven
         run: mvn -B package --file pom.xml
