@@ -44,7 +44,7 @@ jobs:
           echo "runner.db.pw=${{ secrets.DatabasePassword }}" >> src/main/resources/DbData.properties
 
       - name: Verify properties file content
-        run: cat src/main/resources/CI_Runner.properties
+        run: cat src/main/resources/DbData.properties
 
       # Build the project with Maven
       - name: Build with Maven
