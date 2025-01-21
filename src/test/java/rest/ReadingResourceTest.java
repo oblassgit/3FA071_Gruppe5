@@ -1,6 +1,7 @@
 package rest;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.sql.Connection;
@@ -47,7 +48,7 @@ public class ReadingResourceTest {
     }
 
     @Test
-    public void testDeleteReading() throws SQLException, JsonProcessingException {
+    public void testDeleteReadingOk() throws SQLException, JsonProcessingException {
         UUID mockReadingUuid = UUID.randomUUID();
         Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
                 KindOfMeter.WASSER, 2.5, "12345", false);
@@ -69,6 +70,20 @@ public class ReadingResourceTest {
     }
 
     @Test
+    public void testDeleteReadingNotFound() throws SQLException, JsonProcessingException {
+        UUID mockReadingUuid = UUID.randomUUID();
+        Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+
+        Mockito.doNothing().when(mockReadingDao).deleteReading(mockReading);
+
+        Response response = readingResource.deleteReading(mockReadingUuid.toString());
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals("Could not find reading with uuid : " + mockReadingUuid, response.getEntity());
+    }
+
+    @Test
     public void testCreateReading() throws SQLException, JsonProcessingException {
         UUID uuid = UUID.randomUUID();
         Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0, "1", true);
@@ -87,4 +102,43 @@ public class ReadingResourceTest {
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 
+    @Test
+    public void testUpdateReadingOk() throws SQLException {
+        UUID mockReadingUuid = UUID.randomUUID();
+        Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+
+        Mockito.doNothing().when(mockReadingDao).updateReading(mockReading);
+
+        Response response = readingResource.updateReading(mockReading);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("Reading with uuid: " + mockReadingUuid + " was updated.", response.getEntity());
+    }
+
+    @Test
+    public void testUpdateReadingNotFound() throws SQLException, JsonProcessingException {
+        UUID mockReadingUuid = UUID.randomUUID();
+        Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+
+        Mockito.doThrow(new SQLException()).when(mockReadingDao).updateReading(mockReading);
+
+        Response response = readingResource.updateReading(mockReading);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals("Could not find reading with uuid : " + mockReadingUuid, response.getEntity());
+    }
+
+    @Test
+    public void testUpdateReadingNoUuid() throws SQLException, JsonProcessingException {
+        Reading mockReading = new Reading(null, "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+        Mockito.doThrow(new SQLException()).when(mockReadingDao).updateReading(mockReading);
+
+        Response response = readingResource.updateReading(mockReading);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Please provide a valid uuid!", response.getEntity());
+    }
 }

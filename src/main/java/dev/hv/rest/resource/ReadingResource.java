@@ -69,17 +69,24 @@ public class ReadingResource {
     @Path("/{uuid}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteReading(@PathParam("uuid") String uuid) {
+    public Response deleteReading(@PathParam("uuid") String uuidRaw) {
         Reading reading;
         try {
+            UUID uuid = UUID.fromString(uuidRaw);
+
             databaseCon.getConnection();
             databaseCon.createAllTables();
 
-            reading = readingDao.getReading(UUID.fromString(uuid));
+            reading = readingDao.getReading(uuid);
+            if (reading == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Could not find reading with uuid : " + uuid).build();
+            }
+
             readingDao.deleteReading(reading);
 
         } catch (SQLException e) {
-            return Response.serverError().build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
         return Response.ok(reading).build();
     }
