@@ -49,7 +49,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
+    public void testGetCustomerByUuidOk() throws SQLException, JsonProcessingException {
 
         // Arrange
         UUID testUuid = UUID.randomUUID();
@@ -71,6 +71,21 @@ public class CustomerResourceTest {
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    }
+
+    @Test
+    public void testGetCustomerByUuidNotFound() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).getCustomer(testUuid);
+
+        Response response = customerResource.getCustomer(testUuid.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(null, response.getEntity());
     }
 
     @Test
