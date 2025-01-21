@@ -49,7 +49,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
+    public void testGetCustomerByUuidOk() throws SQLException, JsonProcessingException {
 
         // Arrange
         UUID testUuid = UUID.randomUUID();
@@ -74,7 +74,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testGetCustomerByUuidWrongId() throws SQLException, JsonProcessingException {
+    public void testGetCustomerByUuidNotFound() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
 
         Mockito.doThrow(new SQLException()).when(mockCustomerDao).getCustomer(testUuid);
