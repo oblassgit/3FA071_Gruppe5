@@ -106,7 +106,7 @@ public class CustomerResource {
                 }
 
             } else {
-                return Response.status(404).build();
+                return Response.status(404).entity("Customer with uuid: " + uuid + "cannot be found.").build();
             }
 
         } catch (SQLException e) {
