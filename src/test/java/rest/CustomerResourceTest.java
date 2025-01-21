@@ -74,6 +74,21 @@ public class CustomerResourceTest {
     }
 
     @Test
+    public void testGetCustomerByUuidWrongId() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).getCustomer(testUuid);
+
+        Response response = customerResource.getCustomer(testUuid.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(null, response.getEntity());
+    }
+
+    @Test
     public void testUpdateCustomerOk() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
