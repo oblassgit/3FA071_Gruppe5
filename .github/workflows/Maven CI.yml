@@ -33,7 +33,7 @@ jobs:
       - name: Check MariaDB connection
         run: |
           docker ps
-          mysql -h 127.0.0.1 -P 3800 -u developer -p${{ secrets.DatabasePassword }}
+          mysql -h 127.0.0.1 -P 3800 -uroot -p${{ secrets.RootPassword }}
 
       # Set up JDK 21
       - name: Set up JDK 21
