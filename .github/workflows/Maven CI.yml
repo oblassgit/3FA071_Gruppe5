@@ -27,10 +27,10 @@ jobs:
           mysql database: 'some_test'
           mysql root password: ${{ secrets.RootPassword }}
           mysql user: 'developer'
-          mysql password: ${{ secrets.DatabasePassword }}
+          #mysql password: ${{ secrets.DatabasePassword }}
 
       - name: Check MariaDB connection
-        run: mysql -h localhost -P 3307 -u developer -p ${{ secrets.DatabasePassword }}
+        run: mysql -h localhost -P 3307 -u developer
 
       # Set up JDK 21
       - name: Set up JDK 21
@@ -45,8 +45,8 @@ jobs:
           echo "###################################" >> src/main/resources/DbData.properties 
           echo "runner.db.url=jdbc:mariadb://localhost:3307/some_test?allowMultiQueries=true" >> src/main/resources/DbData.properties
           echo "runner.db.user=developer" >> src/main/resources/DbData.properties
-          echo "runner.db.pw=${{ secrets.DatabasePassword }}" >> src/main/resources/DbData.properties
-
+          echo "runner.db.pw=" >> src/main/resources/DbData.properties
+#${{ secrets.DatabasePassword }}
       - name: Verify properties file content
         run: cat src/main/resources/DbData.properties
 
