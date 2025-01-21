@@ -2,6 +2,9 @@ package dev.hv;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Properties;
 
 public class Util {
@@ -38,5 +41,17 @@ public class Util {
         return dbpw;
     }
 
-    public Properties getProperties() {return properties;}
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public boolean validateDateTime(String date, String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        try {
+            LocalDate.parse(date, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 }
