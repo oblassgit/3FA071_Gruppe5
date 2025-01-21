@@ -74,7 +74,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testUpdateCustomerOk() throws SQLException, JsonProcessingException {
+    public void testUpdateCustomerOk() throws SQLException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
 
@@ -121,6 +121,15 @@ public class CustomerResourceTest {
 
         JSONObject schemaJson = new JSONObject(new JSONTokener(
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        Schema schema = SchemaLoader.load(schemaJson);
+
+        JSONObject responseJson = new JSONObject(jsonResponse);
+        assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 
     @Test
@@ -145,7 +154,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testDeleteCustomer() throws SQLException, JsonProcessingException {
+    public void testDeleteCustomerOK() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
         Reading mockReading = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG,
@@ -171,8 +180,26 @@ public class CustomerResourceTest {
                 getClass().getResourceAsStream("/json schemas/JSON_Schema_CustomerWithReadings.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    }
+
+    @Test
+    public void testDeleteCustomerNotFound() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+        Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
+
+        Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer);
+        when(mockCustomerDao.getCustomer(testUuid)).thenReturn(null);
+        when(mockCustomerDao.getReadingsForCustomer(mockCustomer)).thenReturn(null);
+
+        Response response = customerResource.deleteCustomer(testUuid.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
 }
