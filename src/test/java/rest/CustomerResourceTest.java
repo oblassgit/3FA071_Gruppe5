@@ -1,6 +1,5 @@
 package rest;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.enums.KindOfMeter;
@@ -34,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 public class CustomerResourceTest {
 
     private static CustomerResource customerResource;
@@ -59,7 +57,6 @@ public class CustomerResourceTest {
 
         when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
 
-
         Response response = customerResource.getCustomer(testUuid.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
@@ -68,7 +65,8 @@ public class CustomerResourceTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(mockCustomer, response.getEntity());
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
@@ -76,7 +74,6 @@ public class CustomerResourceTest {
     }
 
     @Test
-
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
         UUID testUuid1 = UUID.randomUUID();
         UUID testUuid2 = UUID.randomUUID();
@@ -96,9 +93,11 @@ public class CustomerResourceTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
     }
-  
+
+    @Test
     public void testCreateCustomer() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
@@ -111,8 +110,8 @@ public class CustomerResourceTest {
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
 
-
-        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
@@ -123,9 +122,10 @@ public class CustomerResourceTest {
     public void testDeleteCustomer() throws SQLException, JsonProcessingException {
         UUID testUuid = UUID.randomUUID();
         Customer mockCustomer = new Customer(testUuid, "John", "Doe", LocalDate.now(), Gender.M);
-        Reading mockReading = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 0.0, "", false);
-        Reading mockReading1 = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 0.0, "", false);
-
+        Reading mockReading = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG,
+                0.0, "", false);
+        Reading mockReading1 = new Reading(UUID.randomUUID(), "", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG,
+                0.0, "", false);
 
         List<Reading> readings = new ArrayList<>();
         readings.add(mockReading);
@@ -136,13 +136,13 @@ public class CustomerResourceTest {
         when(mockCustomerDao.getCustomer(testUuid)).thenReturn(mockCustomer);
         when(mockCustomerDao.getReadingsForCustomer(mockCustomer)).thenReturn(readingList);
 
-
         Response response = customerResource.deleteCustomer(testUuid.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
         System.out.println(jsonResponse);
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_CustomerWithReadings.json"))));
+        JSONObject schemaJson = new JSONObject(new JSONTokener(Objects.requireNonNull(
+                getClass().getResourceAsStream("/json schemas/JSON_Schema_CustomerWithReadings.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
