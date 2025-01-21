@@ -36,6 +36,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+      - name: whoami
+        run: whoami
       # Edit the database URL property
       - name: Edit URL property
         uses: Reedyuk/write-properties@v1.0.3
