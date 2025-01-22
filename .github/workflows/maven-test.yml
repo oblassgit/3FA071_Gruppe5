@@ -54,6 +54,41 @@ jobs:
 
       # Build the project with Maven
       - name: Test with Maven
-        run:  mvn test
+        run: mvn clean install site -P test
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4
+
+      - name: Extract code coverage from HTML
+        run: |
+          import sys
+          from bs4 import BeautifulSoup
+
+          # Read the HTML file
+          with open('target/site/jacoco/index.html', 'r', encoding='utf-8') as file:
+              html_content = file.read()
+          
+          # Parse the HTML content
+          soup = BeautifulSoup(html_content, 'html.parser')
+
+          # Find the total coverage percentage in the <tfoot> section of the table
+          tfoot = soup.find('tfoot')
+          total_coverage = tfoot.find_all('td', class_='ctr2')[0].text
+
+          # Print the total coverage percentage
+          print(f'Total Code Coverage: {total_coverage}')
+
+          # Set the total coverage as an output variable
+          print(f'::set-output name=total_coverage::{total_coverage}')
+        shell: python
+
+      - name: Display total coverage
+        run: echo "Total Code Coverage:${{ steps.extract-coverage.outputs.total_coverage }}"
 
 
