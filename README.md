@@ -1,5 +1,7 @@
 # 3FA071_Gruppe5
 
+[![Pipeline](https://github.com/oblassgit/3FA071_Gruppe5/actions/workflows/Maven%20CI.yml/badge.svg)](https://github.com/oblassgit/3FA071_Gruppe5/actions/workflows/Maven%20CI.yml)
+
 ## guide to get started
 
 ### requirements:

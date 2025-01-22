@@ -53,7 +53,7 @@ public class DatabaseCon implements IDatabaseConnections {
             System.out.println("Verbindung erfolgreich hergestellt.");
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Fehler beim Öffnen der Datenbankverbindung.");
+            throw new RuntimeException("Fehler beim Öffnen der Datenbankverbindung. \n" + util.getDbUser() + "\n" + util.getDbUrl());
         }
         return this;
     }
