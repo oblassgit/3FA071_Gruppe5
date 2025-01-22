@@ -32,14 +32,14 @@ public class CustomerDao {
     public CustomerDao(Connection con) throws SQLException {
         connection = con;
         createStatement = connection.prepareStatement(
-                "insert into Customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
-        deleteStatement = connection.prepareStatement("delete from Customer where id = ?");
+                "insert into customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)");
+        deleteStatement = connection.prepareStatement("delete from customer where id = ?");
         removeCustomerInReadingStatement = connection
-                .prepareStatement("update Reading set customer_id = null where customer_id = ?");
-        getStatement = connection.prepareStatement("select * from Customer where id = ?");
-        countStatement = connection.prepareStatement("select count(*) as count from Customer");
-        selectStatement = connection.prepareStatement("select * from Customer");
-        updateStatement = connection.prepareStatement("update Customer set first_name = ?, last_name = ?, " +
+                .prepareStatement("update reading set customer_id = null where customer_id = ?");
+        getStatement = connection.prepareStatement("select * from customer where id = ?");
+        countStatement = connection.prepareStatement("select count(*) as count from customer");
+        selectStatement = connection.prepareStatement("select * from customer");
+        updateStatement = connection.prepareStatement("update customer set first_name = ?, last_name = ?, " +
                 "birth_date = ?, gender = ? where id = ?");
         getReadingsForCustomerStatement = con.prepareStatement("select * from reading where customer_id = ?");
     }
