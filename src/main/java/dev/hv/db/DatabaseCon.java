@@ -12,7 +12,7 @@ import java.util.Properties;
 public class DatabaseCon implements IDatabaseConnections {
     private Connection connection;
     private final static String createCustomerTable = """
-            CREATE TABLE IF NOT EXISTS Customer (
+            CREATE TABLE IF NOT EXISTS customer (
             id UUID NOT NULL,
             first_name VARCHAR(100) NOT NULL,
             last_name VARCHAR(100) NOT NULL,
@@ -23,7 +23,7 @@ public class DatabaseCon implements IDatabaseConnections {
             """;
 
     private final static String createReadingTable = """
-            CREATE TABLE IF NOT EXISTS Reading (
+            CREATE TABLE IF NOT EXISTS reading (
             id UUID NOT NULL,
             customer_id UUID,
             comment VARCHAR(1000) NOT NULL,
@@ -32,7 +32,7 @@ public class DatabaseCon implements IDatabaseConnections {
             meter_id VARCHAR(100) NOT NULL,
             kind_of_meter ENUM('HEIZUNG', 'STROM', 'WASSER', 'UNBEKANNT'),
             substitute BOOL NOT NULL,
-            CONSTRAINT customer_fk FOREIGN KEY (customer_id) references Customer(id),
+            CONSTRAINT customer_fk FOREIGN KEY (customer_id) references customer(id),
             PRIMARY KEY (id)
             )
             """;
@@ -88,8 +88,8 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public void removeAllTables() {
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute("DROP TABLE IF EXISTS Reading;");
-            stmt.execute("DROP TABLE IF EXISTS Customer;");
+            stmt.execute("DROP TABLE IF EXISTS reading;");
+            stmt.execute("DROP TABLE IF EXISTS customer;");
             System.out.println("Alle Tabellen erfolgreich entfernt.");
         } catch (SQLException e) {
             e.printStackTrace();

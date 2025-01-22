@@ -27,11 +27,11 @@ public class ReadingDao {
     public ReadingDao(Connection connection) throws SQLException {
         this.connection = connection;
         createStatement = connection.prepareStatement(
-                "insert into Reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        updateStatement = connection.prepareStatement("update Reading set comment = ?, customer_id = ?, " +
+                "insert into reading (id, comment, customer_id, date_of_reading, kind_of_meter, meter_count, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        updateStatement = connection.prepareStatement("update reading set comment = ?, customer_id = ?, " +
                 "date_of_reading = ?, kind_of_meter = ?, meter_count = ?, meter_id = ?, substitute = ? where id = ?");
-        deleteStatement = connection.prepareStatement("delete from Reading where id = ?");
-        getStatement = connection.prepareStatement("select * from Reading where id = ?");
+        deleteStatement = connection.prepareStatement("delete from reading where id = ?");
+        getStatement = connection.prepareStatement("select * from reading where id = ?");
     
     }
 
