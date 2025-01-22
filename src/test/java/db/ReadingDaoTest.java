@@ -1,4 +1,5 @@
 package db;
+
 import dev.hv.model.Customer;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
@@ -10,6 +11,7 @@ import dev.hv.db.ReadingDao;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mariadb.jdbc.export.ExceptionFactory.SqlExceptionFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -18,6 +20,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -52,7 +56,7 @@ public class ReadingDaoTest {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
                 "id", false);
         readingDao.createReading(reading);
-        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId()); 
+        assertEquals(readingDao.getReading(reading.getId()).getId(), reading.getId());
 
     }
 
@@ -94,8 +98,30 @@ public class ReadingDaoTest {
 
         readingDao.createReading(reading);
         assertNotEquals(customerDao.getCustomer(customer.getId()), null);
-        assertNotEquals( readingDao.getReading(test),null);
+        assertNotEquals(readingDao.getReading(test), null);
 
+    }
+
+    @Test
+    public void testGetReadings() throws SQLException {
+        Reading reading0 = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.WASSER,
+                12.0, "id", false);
+        Reading reading1 = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
+                "id", false);
+        Reading reading2 = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now().plusDays(-365),
+                KindOfMeter.WASSER, 12.0, "id", false);
+        Reading reading3 = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now().plusDays(365),
+                KindOfMeter.WASSER, 12.0, "id", false);
+        readingDao.createReading(reading0);
+        readingDao.createReading(reading1);
+        readingDao.createReading(reading2);
+        readingDao.createReading(reading3);
+
+        List<Reading> foundReadings = readingDao.getReadings(customer.getId(), LocalDate.now().plusDays(-3),
+                LocalDate.now().plusDays(3), KindOfMeter.WASSER);
+        List<Reading> expectedReadings = List.of(reading0);
+
+        assertEquals(expectedReadings, foundReadings);
     }
 
     @AfterAll
