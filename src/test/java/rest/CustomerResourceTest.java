@@ -61,6 +61,7 @@ public class CustomerResourceTest {
     public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
         when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
 
+
         Response response = customerResource.getCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
@@ -75,6 +76,21 @@ public class CustomerResourceTest {
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    }
+
+    @Test
+    public void testGetCustomerByUuidNotFound() throws SQLException, JsonProcessingException {
+        UUID testUuid = UUID.randomUUID();
+
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).getCustomer(testUuid);
+
+        Response response = customerResource.getCustomer(testUuid.toString());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        assertEquals(null, response.getEntity());
     }
 
     @Test

@@ -1,0 +1,59 @@
+name: maven-test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up MariaDB
+      - name: Setup MariaDB
+        uses: oblassgit/mariadb-action@v1.0.1
+        with:
+          host port: 3800
+          container port: 3307
+          character set server: 'utf8'
+          collation server: 'utf8_general_ci'
+          mariadb version: '11.6.2'
+          mysql database: 'some_test'
+          mysql root password: ${{ secrets.RootPassword }}
+          mysql user: 'developer'
+          mysql password: ${{ secrets.DatabasePassword }}
+
+      # Check MariaDB connection
+      - name: Check MariaDB connection
+        run: |
+          docker ps
+          mysql -h 127.0.0.1 -P 3800 -uroot -p${{ secrets.RootPassword }}
+
+      # Set up JDK 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Add secrets to properties file
+        run: |
+          echo "###################################" >> src/main/resources/DbData.properties 
+          echo "runner.db.url=jdbc:mariadb://localhost:3800/some_test?allowMultiQueries=true" >> src/main/resources/DbData.properties
+          echo "runner.db.user=root" >> src/main/resources/DbData.properties
+          echo "runner.db.pw=${{ secrets.RootPassword }}" >> src/main/resources/DbData.properties
+      - name: Verify properties file content
+        run: cat src/main/resources/DbData.properties
+
+      # Build the project with Maven
+      - name: Test with Maven
+        run:  mvn test
+
+
