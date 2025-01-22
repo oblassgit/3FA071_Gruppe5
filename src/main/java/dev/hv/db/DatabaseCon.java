@@ -73,8 +73,12 @@ public class DatabaseCon implements IDatabaseConnections {
     @Override
     public void truncateAllTables() {
         try (Statement stmt = connection.createStatement()) {
+            try {
+                stmt.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
+            } catch (SQLException e) {
+                System.out.println("constraint wurde nicht gefunden oder konnte nicht entfernt werden: " + e.getMessage());
+            }
             stmt.execute("TRUNCATE  TABLE reading;");
-            stmt.execute("ALTER TABLE reading DROP CONSTRAINT customer_fk;");
             stmt.execute("TRUNCATE TABLE customer;");
             stmt.execute(
                     "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");

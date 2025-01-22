@@ -8,6 +8,7 @@ import dev.hv.model.Reading;
 import dev.hv.db.ReadingDao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,7 +36,6 @@ public class CustomerDaoTest {
         properties.load(new FileReader("src/main/resources/DbData.properties"));
 
         databaseCon.openConnections(properties);
-        databaseCon.removeAllTables();
         databaseCon.createAllTables();
         databaseCon.truncateAllTables();
 
@@ -93,7 +93,7 @@ public class CustomerDaoTest {
 
         customerDao.deleteCustomer(customer);
         assert readingDao.getReading(reading.getId()).getCustomer() == null;
-        assertEquals(readingDao.getReading(reading.getId()).getCustomer(), null);
+        assertNull(readingDao.getReading(reading.getId()).getCustomer());
     }
 
     @AfterAll
