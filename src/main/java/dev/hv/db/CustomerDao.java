@@ -66,12 +66,11 @@ public class CustomerDao {
             deleteStatement.setString(1, customer.getId().toString());
             deleteStatement.execute();
 
-            alterConstraintStatement.execute(
-                    "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
-
             removeCustomerInReadingStatement.setString(1, customer.getId().toString());
             removeCustomerInReadingStatement.executeUpdate();
 
+            alterConstraintStatement.execute(
+                    "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
             
             transactionStatement.executeQuery("commit");
         } catch (SQLException e) {
