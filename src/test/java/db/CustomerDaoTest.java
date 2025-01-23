@@ -9,6 +9,7 @@ import dev.hv.db.ReadingDao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -94,6 +95,18 @@ public class CustomerDaoTest {
         customerDao.deleteCustomer(customer);
         assert readingDao.getReading(reading.getId()).getCustomer() == null;
         assertNull(readingDao.getReading(reading.getId()).getCustomer());
+    }
+
+    @Test
+    public void testGetReadingsForCustomer() throws SQLException {
+        Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
+        
+        ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
+        readingDao.createReading(reading);
+
+        customerDao.getReadingsForCustomer(customer);
+        assertNotNull(customerDao.getReadingsForCustomer(customer));
+        assertEquals(customerDao.getReadingsForCustomer(customer).size(), 1);
     }
 
     @AfterAll
