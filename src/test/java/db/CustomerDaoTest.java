@@ -105,7 +105,7 @@ public class CustomerDaoTest {
         readingDao.createReading(reading);
 
         customerDao.getReadingsForCustomer(customer);
-        assert customerDao.getReadingsForCustomer(customer) != null;
+        assertNotNull(customerDao.getReadingsForCustomer(customer));
         assertEquals(customerDao.getReadingsForCustomer(customer).size(), 1);
     }
 
