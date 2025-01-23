@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -148,12 +149,13 @@ public class ReadingResource {
             @QueryParam("end") String endDateRaw,
             @QueryParam("kindOfMeter") String kindOfMeterRaw) {
 
-        List<Reading> readings = new ArrayList<>();
+        HashMap<String, List<Reading>> test = new HashMap<String, List<Reading>>();
         try {
             UUID customerId;
             LocalDate startDate = null;
             LocalDate endDate = null;
             KindOfMeter kindOfMeter = null;
+            List<Reading> readings = new ArrayList<>();
             try {
                 if (cutstomerIdRaw == null) {
                     throw new Exception("customerId is not defined");
@@ -190,10 +192,15 @@ public class ReadingResource {
 
             readings = readingDao.getReadings(customerId, startDate, endDate, kindOfMeter);
 
+            test = new HashMap<String, List<Reading>>();
+            HashMap<String, List<Reading>> map = new HashMap<String, List<Reading>>();// (Map<String, List<Reading>>)
+                                                                                      // test;
+            map.put("readings", readings);
+
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
-        return Response.ok(readings).build();
+        return Response.ok(test).build();
     }
 }

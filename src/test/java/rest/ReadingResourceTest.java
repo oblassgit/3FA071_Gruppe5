@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -163,5 +164,29 @@ public class ReadingResourceTest {
 
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         assertEquals("Please provide a valid uuid!", response.getEntity());
+    }
+
+    @Test
+    public void testGetReadingsByParameter() throws SQLException, JsonProcessingException {
+        Reading mockReading = new Reading(UUID.randomUUID(), "This is a comment", mockCustomer, LocalDate.now(),
+                KindOfMeter.WASSER, 2.5, "12345", false);
+        when(mockReadingDao.getReadings(mockCustomer.getId(), LocalDate.of(2025, 1, 1), LocalDate.of(3025, 12, 12),
+                KindOfMeter.WASSER)).thenReturn(List.of(mockReading));
+
+        Response response = readingResource.getReadingsByParameter(mockCustomer.getId().toString(), "2025-01-01",
+                "3025-12-12", "wAsSeR");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Readings.json"))));
+        Schema schema = SchemaLoader.load(schemaJson);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        System.out.println(jsonResponse);
+        JSONObject responseJson = new JSONObject(jsonResponse);
+        assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 }
