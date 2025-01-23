@@ -149,7 +149,7 @@ public class ReadingResource {
             @QueryParam("end") String endDateRaw,
             @QueryParam("kindOfMeter") String kindOfMeterRaw) {
 
-        HashMap<String, List<Reading>> test = new HashMap<String, List<Reading>>();
+        HashMap<String, List<Reading>> returnObject = new HashMap<String, List<Reading>>();
         try {
             UUID customerId;
             LocalDate startDate = null;
@@ -192,15 +192,12 @@ public class ReadingResource {
 
             readings = readingDao.getReadings(customerId, startDate, endDate, kindOfMeter);
 
-            test = new HashMap<String, List<Reading>>();
-            HashMap<String, List<Reading>> map = new HashMap<String, List<Reading>>();// (Map<String, List<Reading>>)
-                                                                                      // test;
-            map.put("readings", readings);
+            returnObject.put("readings", readings);
 
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
 
-        return Response.ok(test).build();
+        return Response.ok(returnObject).build();
     }
 }
