@@ -141,7 +141,7 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testCreateCustomer() throws SQLException, JsonProcessingException {
+    public void testCreateCustomerCreated() throws SQLException, JsonProcessingException {
         Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer1);
 
         Response response = customerResource.createCustomer(mockCustomer1);
@@ -156,6 +156,15 @@ public class CustomerResourceTest {
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testCreateCustomerBadRequest() throws SQLException, JsonProcessingException {
+        Mockito.doThrow(new SQLException()).when(mockCustomerDao).createCustomer(mockCustomer1);
+
+        Response response = customerResource.createCustomer(mockCustomer1);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
     @Test
