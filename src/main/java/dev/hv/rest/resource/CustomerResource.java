@@ -130,7 +130,6 @@ public class CustomerResource {
 
         databaseCon.openConnections(util.getProperties());
 
-        // Prüfen, ob eine UUID vorhanden ist, sonst eine generieren
         if (customer.getId() == null) {
             customer.setId(UUID.randomUUID());
         }
@@ -141,9 +140,6 @@ public class CustomerResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-
-
-        // Response mit 201 und der gespeicherten Entität zurückgeben
         return Response.status(Response.Status.CREATED)
                 .entity(customer)
                 .build();
