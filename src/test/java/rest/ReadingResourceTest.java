@@ -112,7 +112,7 @@ public class ReadingResourceTest {
         }
 
         @Test
-        public void testGetReading() throws SQLException, JsonProcessingException {
+        public void testGetReadingByUuid() throws SQLException, JsonProcessingException {
                 UUID uuid = UUID.randomUUID();
                 Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
                                 "1", true);
@@ -206,7 +206,7 @@ public class ReadingResourceTest {
         }
 
         @Test
-        public void testGetReadingsByParameterNoCustomerId() throws SQLException, JsonProcessingException {
+        public void testGetReadingsByUuidNotFound() throws SQLException, JsonProcessingException {
                 Response response = readingResource.getReadingsByParameter(null, null, null, null);
 
                 assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
