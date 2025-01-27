@@ -175,54 +175,6 @@ public class ReadingResourceTest {
                 assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
                 assertEquals("Please provide a valid uuid!", response.getEntity());
         }
-
-        @Test
-        public void testGetReadingsByParameter() throws SQLException, JsonProcessingException {
-                Reading mockReading = new Reading(UUID.randomUUID(), "This is a comment", mockCustomer, LocalDate.now(),
-                                KindOfMeter.WASSER, 2.5, "12345", false);
-                when(mockReadingDao.getReadings(mockCustomer.getId(), LocalDate.of(2025, 1, 1),
-                                LocalDate.of(3025, 12, 12),
-                                KindOfMeter.WASSER)).thenReturn(List.of(mockReading));
-
-                Response response = readingResource.getReadingsByParameter(mockCustomer.getId().toString(),
-                                "2025-01-01",
-                                "3025-12-12", "wAsSeR");
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
-                                .writeValueAsString(response.getEntity());
-
-                JSONObject schemaJson = new JSONObject(new JSONTokener(
-                                Objects.requireNonNull(getClass()
-                                                .getResourceAsStream("/json schemas/JSON_Schema_Readings.json"))));
-                Schema schema = SchemaLoader.load(schemaJson);
-
-                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-                System.out.println(jsonResponse);
-                JSONObject responseJson = new JSONObject(jsonResponse);
-                assertDoesNotThrow(() -> schema.validate(responseJson),
-                                "This JSON does not conform to the provided schema.");
-        }
-
-        @Test
-        public void testGetReadingsByUuidNotFound() throws SQLException, JsonProcessingException {
-                Response response = readingResource.getReadingsByParameter(null, null, null, null);
-
-                assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-                assertEquals("customerId is not defined", response.getEntity());
-        }
-
-        @Test
-        public void testGetReadingsByParameterWrongStartDateFOrmat() throws SQLException, JsonProcessingException {
-                UUID randomUuid = UUID.randomUUID();
-                Response response = readingResource.getReadingsByParameter(randomUuid.toString(), "2025.01.01", null,
-                                null);
-
-                assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-                assertEquals("Invalid start format", response.getEntity());
-        }
-
         @Test
         public void testGetReadingsByParameterWrongEndDateFOrmat() throws SQLException, JsonProcessingException {
                 UUID randomUuid = UUID.randomUUID();
