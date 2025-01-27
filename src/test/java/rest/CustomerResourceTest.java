@@ -210,5 +210,4 @@ public class CustomerResourceTest {
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
-
 }

@@ -54,6 +54,22 @@ jobs:
 
       # Build the project with Maven
       - name: Test with Maven
-        run:  mvn test
+        run:  mvn site -P test
+
+      - name: Add coverage to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.7.1
+        with:
+          paths: |
+            ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 50
+          min-coverage-changed-files: 80
+          update-comment: true
+          skip-if-no-changes: false
+          title: '`Coverage Report`'
+          debug-mode: true
+
+        
 
 
