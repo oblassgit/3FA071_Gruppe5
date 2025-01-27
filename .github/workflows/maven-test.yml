@@ -56,6 +56,10 @@ jobs:
       - name: Test with Maven
         run:  mvn site -P test
 
+      - name: List coverage report files
+        run: |
+          find ${{ github.workspace }} -name "*.xml"
+
       - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.7.1
@@ -66,8 +70,9 @@ jobs:
           min-coverage-overall: 50
           min-coverage-changed-files: 80
           update-comment: true
-          skip-if-no-changes: true
+          skip-if-no-changes: false
           title: '`Coverage Report`'
+          debug-mode: true
 
         
 
