@@ -10,10 +10,14 @@ public class Server {
     static HttpServer server;
     
     public static void startServer(String url) {
+
         System.out.println("Start server");
         System.out.println(url);
         //final ResourceConfig rc = new ResourceConfig().packages(pack).register(AuthenticationFilter.class);
-        final ResourceConfig rc = new ResourceConfig().packages(pack);
+        final ResourceConfig rc = new ResourceConfig()
+                .packages(pack)
+                .register(CORSFilter.class);
+
         server = JdkHttpServerFactory.createHttpServer(URI.create(url), rc);
         System.out.println("Ready for Requests....");
 
