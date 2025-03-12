@@ -151,17 +151,12 @@ public class ReadingResource {
 
         HashMap<String, List<Reading>> returnObject = new HashMap<String, List<Reading>>();
         try {
-            UUID customerId;
+            UUID customerId = null;
             LocalDate startDate = null;
             LocalDate endDate = null;
             KindOfMeter kindOfMeter = null;
             List<Reading> readings = new ArrayList<>();
             try {
-                if (cutstomerIdRaw == null) {
-                    throw new Exception("customerId is not defined");
-                } else {
-                    customerId = UUID.fromString(cutstomerIdRaw);
-                }
 
                 if (kindOfMeterRaw != null) {
                     kindOfMeter = KindOfMeter.valueOf(kindOfMeterRaw.toUpperCase());

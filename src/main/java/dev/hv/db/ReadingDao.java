@@ -107,33 +107,51 @@ public class ReadingDao {
         return null;
     }
 
-    public List<Reading> getReadings(UUID customerId, LocalDate startDate, LocalDate endDate,
-            KindOfMeter kindOfMeter) throws SQLException {
+    public List<Reading> getReadings(UUID customerId, LocalDate startDate, LocalDate endDate, KindOfMeter kindOfMeter) throws SQLException {
         List<Reading> readings = new ArrayList<>();
 
-        String stmtString = "SELECT * FROM reading WHERE customer_id = '" + customerId + "'";
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM reading WHERE 1=1");
+        List<Object> parameters = new ArrayList<>();
+
+        if (customerId != null) {
+            queryBuilder.append(" AND customer_id = ?");
+            parameters.add(customerId.toString());
+        }
         if (kindOfMeter != null) {
-            stmtString = stmtString + " AND kind_of_meter = '" + kindOfMeter + "'";
+            queryBuilder.append(" AND kind_of_meter = ?");
+            parameters.add(kindOfMeter.name());
         }
         if (startDate != null) {
-            stmtString = stmtString + " AND date_of_reading > '" + startDate + "'";
+            queryBuilder.append(" AND date_of_reading > ?");
+            parameters.add(Date.valueOf(startDate));
         }
         if (endDate != null) {
-            stmtString = stmtString + " AND date_of_reading < '" + endDate + "'";
+            queryBuilder.append(" AND date_of_reading < ?");
+            parameters.add(Date.valueOf(endDate));
         }
-        PreparedStatement stmt = connection.prepareStatement(stmtString);
 
-        ResultSet resultSet = stmt.executeQuery();
+        try (PreparedStatement stmt = connection.prepareStatement(queryBuilder.toString())) {
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
 
-        Customer customer = new CustomerDao(connection).getCustomer(customerId);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    UUID readingId = UUID.fromString(resultSet.getString("id"));
+                    String comment = resultSet.getString("comment");
+                    LocalDate dateOfReading = resultSet.getDate("date_of_reading").toLocalDate();
+                    KindOfMeter meterType = KindOfMeter.valueOf(resultSet.getString("kind_of_meter"));
+                    double meterCount = resultSet.getDouble("meter_count");
+                    String meterId = resultSet.getString("meter_id");
+                    boolean substitute = resultSet.getBoolean("substitute");
 
-        while (resultSet.next()) {
-            readings.add(new Reading(UUID.fromString(resultSet.getString("id")), resultSet.getString("comment"),
-                    customer, resultSet.getDate("date_of_reading").toLocalDate(),
-                    KindOfMeter.valueOf(resultSet.getString("kind_of_meter")), resultSet.getDouble("meter_count"),
-                    resultSet.getString("meter_id"), resultSet.getBoolean("substitute")));
+                    Customer customer = new CustomerDao(connection).getCustomer(customerId);
+                    readings.add(new Reading(readingId, comment, customer, dateOfReading, meterType, meterCount, meterId, substitute));
+                }
+            }
         }
 
         return readings;
     }
+
 }
