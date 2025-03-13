@@ -30,7 +30,7 @@ import java.util.UUID;
 @Path("readings")
 public class ReadingResource {
 
-    private Util util = new Util();
+    private final Util util = new Util();
     private DatabaseCon databaseCon = new DatabaseCon();
     private ReadingDao readingDao;
 
@@ -114,6 +114,8 @@ public class ReadingResource {
             UUID id = input.getId() == null ? UUID.randomUUID() : input.getId();
             input.setId(id);
 
+            if (input.getComment() == null) input.setComment("");
+
             readingDao.createReading(input);
 
             return Response.status(Response.Status.CREATED).entity(input).build();
@@ -144,7 +146,7 @@ public class ReadingResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getReadingsByParameter(
-            @QueryParam("customer") String cutstomerIdRaw,
+            @QueryParam("customer") String customerIdRaw,
             @QueryParam("start") String startDateRaw,
             @QueryParam("end") String endDateRaw,
             @QueryParam("kindOfMeter") String kindOfMeterRaw) {
@@ -157,6 +159,10 @@ public class ReadingResource {
             KindOfMeter kindOfMeter = null;
             List<Reading> readings = new ArrayList<>();
             try {
+
+                if (customerIdRaw != null) {
+                    customerId = UUID.fromString(customerIdRaw);
+                }
 
                 if (kindOfMeterRaw != null) {
                     kindOfMeter = KindOfMeter.valueOf(kindOfMeterRaw.toUpperCase());
