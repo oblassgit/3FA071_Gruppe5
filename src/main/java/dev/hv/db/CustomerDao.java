@@ -38,7 +38,7 @@ public class CustomerDao {
                 .prepareStatement("update reading set customer_id = null where customer_id = ?");
         getStatement = connection.prepareStatement("select * from customer where id = ?");
         countStatement = connection.prepareStatement("select count(*) as count from customer");
-        selectStatement = connection.prepareStatement("select * from customer");
+        selectStatement = connection.prepareStatement("select id, first_name, last_name, gender, birth_date from customer");
         updateStatement = connection.prepareStatement("update customer set first_name = ?, last_name = ?, " +
                 "birth_date = ?, gender = ? where id = ?");
         getReadingsForCustomerStatement = con.prepareStatement("select * from reading where customer_id = ?");
