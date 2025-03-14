@@ -1,5 +1,8 @@
 package dev.hv.rest.resource;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
@@ -19,6 +22,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -200,5 +204,23 @@ public class ReadingResource {
         }
 
         return Response.ok(returnObject).build();
+    }
+
+    @GET
+    @Path("/export/xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response exportXML() {
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            StringWriter writer = new StringWriter();
+            xmlMapper.writeValue(writer, readingDao.getReadings(null, null, null, null));
+
+            return Response.ok(writer.toString())
+                    .header("Content-Disposition", "attachment; filename=\"data.xml\"")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().entity("Error exporting XML").build();
+        }
     }
 }
