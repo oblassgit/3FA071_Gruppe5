@@ -87,7 +87,7 @@ public class ReadingResourceTest {
         }
 
         @Test
-        public void testCreateReading() throws SQLException, JsonProcessingException {
+        public void testCreateReadingOk() throws SQLException, JsonProcessingException {
                 UUID uuid = UUID.randomUUID();
                 Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
                                 "1", true);
@@ -109,6 +109,42 @@ public class ReadingResourceTest {
                 JSONObject responseJson = new JSONObject(jsonResponse);
                 assertDoesNotThrow(() -> schema.validate(responseJson),
                                 "This JSON does not conform to the provided schema.");
+        }
+
+        @Test
+        public void testCreateReadingBadRequest() throws SQLException {
+                UUID uuid = UUID.randomUUID();
+                Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
+                        "1", true);
+                Mockito.doThrow(new SQLException()).when(mockReadingDao).createReading(reading);
+
+                Response response = readingResource.createReading(reading);
+
+                assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        }
+
+        @Test
+        public void testCreateReadingWithoutUUID() throws SQLException, JsonProcessingException {
+                Reading reading = new Reading(null, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
+                        "1", true);
+                Mockito.doNothing().when(mockReadingDao).createReading(reading);
+
+                Response response = readingResource.createReading(reading);
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(response.getEntity());
+                System.out.println(jsonResponse);
+
+                JSONObject schemaJson = new JSONObject(new JSONTokener(
+                        Objects.requireNonNull(getClass()
+                                .getResourceAsStream("/json schemas/JSON_Schema_Reading.json"))));
+                Schema schema = SchemaLoader.load(schemaJson);
+
+                assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+                JSONObject responseJson = new JSONObject(jsonResponse);
+                assertDoesNotThrow(() -> schema.validate(responseJson),
+                        "This JSON does not conform to the provided schema.");
         }
 
         @Test

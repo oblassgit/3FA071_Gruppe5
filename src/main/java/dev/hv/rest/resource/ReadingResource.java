@@ -33,7 +33,7 @@ import java.util.UUID;
 public class ReadingResource {
 
     private final Util util = new Util();
-    private DatabaseCon databaseCon = new DatabaseCon();
+    private DatabaseCon databaseCon;
     private ReadingDao readingDao;
 
     // constructor for jackson
@@ -215,6 +215,7 @@ public class ReadingResource {
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.xml\"")
+                    .type("application/xml")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,6 +250,7 @@ public class ReadingResource {
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.csv\"")
+                    .type("text/csv")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();

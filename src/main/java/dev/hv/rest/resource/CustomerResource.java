@@ -183,6 +183,7 @@ public class CustomerResource {
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.csv\"")
+                    .type("text/csv")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -201,6 +202,7 @@ public class CustomerResource {
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.xml\"")
+                    .type("application/xml")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
