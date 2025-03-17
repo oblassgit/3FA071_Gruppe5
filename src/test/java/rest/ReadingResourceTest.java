@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import dev.hv.db.CustomerDao;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -34,6 +35,7 @@ import jakarta.ws.rs.core.Response;
 public class ReadingResourceTest {
         private static ReadingResource readingResource;
         private static ReadingDao mockReadingDao;
+        private static CustomerDao mockCustomerDao;
         private static DatabaseCon mockDbConnection;
         private static Customer mockCustomer;
 
@@ -45,7 +47,8 @@ public class ReadingResourceTest {
                 mockCustomer = new Customer(UUID.randomUUID(), "Hugh", "Jass", LocalDate.now(), Gender.D);
 
                 mockReadingDao = mock(ReadingDao.class);
-                readingResource = new ReadingResource(mockDbConnection, mockReadingDao);
+                mockCustomerDao = mock(CustomerDao.class);
+                readingResource = new ReadingResource(mockDbConnection, mockReadingDao, mockCustomerDao);
         }
 
         @Test
@@ -87,7 +90,21 @@ public class ReadingResourceTest {
         }
 
         @Test
-        public void testCreateReading() throws SQLException, JsonProcessingException {
+        public void testDeleteReadingInternalServerError() throws SQLException{
+                UUID mockReadingUuid = UUID.randomUUID();
+                Reading mockReading = new Reading(mockReadingUuid, "This is a comment", mockCustomer, LocalDate.now(),
+                        KindOfMeter.WASSER, 2.5, "12345", false);
+
+                when(mockReadingDao.getReading(mockReadingUuid)).thenReturn(mockReading);
+                Mockito.doThrow(new SQLException()).when(mockReadingDao).deleteReading(mockReading);
+
+                Response response = readingResource.deleteReading(mockReadingUuid.toString());
+
+                assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+        }
+
+        @Test
+        public void testCreateReadingOk() throws SQLException, JsonProcessingException {
                 UUID uuid = UUID.randomUUID();
                 Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
                                 "1", true);
@@ -109,6 +126,59 @@ public class ReadingResourceTest {
                 JSONObject responseJson = new JSONObject(jsonResponse);
                 assertDoesNotThrow(() -> schema.validate(responseJson),
                                 "This JSON does not conform to the provided schema.");
+        }
+
+        @Test
+        public void testCreateReadingBadRequest() throws SQLException {
+                UUID uuid = UUID.randomUUID();
+                Reading reading = new Reading(uuid, "test", mockCustomer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
+                        "1", true);
+                Mockito.doThrow(new SQLException()).when(mockReadingDao).createReading(reading);
+
+                Response response = readingResource.createReading(reading);
+
+                assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        }
+
+        @Test
+        public void testCreateReadingWithoutCustomerUUID() throws SQLException, JsonProcessingException {
+                Customer customer = new Customer(null, "", "", LocalDate.now(), Gender.M);
+
+                UUID uuid = UUID.randomUUID();
+                Reading reading = new Reading(uuid, "test", customer, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0,
+                        "1", true);
+                Mockito.doNothing().when(mockReadingDao).createReading(reading);
+                Mockito.doNothing().when(mockCustomerDao).createCustomer(customer);
+
+                Response response = readingResource.createReading(reading);
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(response.getEntity());
+                System.out.println(jsonResponse);
+
+                JSONObject schemaJson = new JSONObject(new JSONTokener(
+                        Objects.requireNonNull(getClass()
+                                .getResourceAsStream("/json schemas/JSON_Schema_Reading.json"))));
+                Schema schema = SchemaLoader.load(schemaJson);
+
+                assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+                JSONObject responseJson = new JSONObject(jsonResponse);
+                assertDoesNotThrow(() -> schema.validate(responseJson),
+                        "This JSON does not conform to the provided schema.");
+        }
+
+        @Test
+        public void testCreateReadingNullCustomer() {
+                // Create a reading with a null customer
+                Reading reading = new Reading(UUID.randomUUID(), "test", null, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0, "1", true);
+
+                // Call the createReading method
+                Response response = readingResource.createReading(reading);
+
+                // Check that the response status is BAD_REQUEST
+                assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+                assertEquals("Invalid body.", response.getEntity());
         }
 
         @Test

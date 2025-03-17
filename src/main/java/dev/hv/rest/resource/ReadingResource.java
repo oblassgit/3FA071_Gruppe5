@@ -27,26 +27,30 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Path("readings")
 public class ReadingResource {
 
     private final Util util = new Util();
-    private DatabaseCon databaseCon = new DatabaseCon();
+    private DatabaseCon databaseCon;
     private ReadingDao readingDao;
+    private CustomerDao customerDao;
 
     // constructor for jackson
     public ReadingResource() throws SQLException {
         databaseCon = new DatabaseCon();
         databaseCon.openConnections(util.getProperties());
         readingDao = new ReadingDao(databaseCon.getConnection());
+        customerDao = new CustomerDao(databaseCon.getConnection());
     }
 
     // dependency injection for testing
-    public ReadingResource(DatabaseCon databaseCon, ReadingDao readingDao) {
+    public ReadingResource(DatabaseCon databaseCon, ReadingDao readingDao, CustomerDao customerDao) {
         this.databaseCon = databaseCon;
         this.readingDao = readingDao;
+        this.customerDao = customerDao;
     }
 
     @Path("/{uuid}")
@@ -109,7 +113,6 @@ public class ReadingResource {
             Customer customer = (Customer) input.getCustomer();
             if (customer.getId() == null) {
                 customer.setId(UUID.randomUUID());
-                CustomerDao customerDao = new CustomerDao(databaseCon.getConnection());
                 customerDao.createCustomer(customer);
             }
 
@@ -215,6 +218,7 @@ public class ReadingResource {
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.xml\"")
+                    .type("application/xml")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -235,20 +239,21 @@ public class ReadingResource {
 
             // Write readings to CSV format
             for (Reading reading : readings) {
-                writer.write(
-                        reading.getId() + "," +
-                                (reading.getComment() != null ? reading.getComment() : "") + "," +
-                                (reading.getCustomer() != null ? reading.getCustomer().getId().toString() : "") + "," +
-                                (reading.getDateOfReading() != null ? reading.getDateOfReading().toString() : "") + "," +
-                                (reading.getKindOfMeter() != null ? reading.getKindOfMeter().name() : "") + "," +
-                                (reading.getMeterCount() != null ? reading.getMeterCount().toString() : "") + "," +
-                                (reading.getMeterId() != null ? reading.getMeterId() : "") + "," +
-                                (reading.getSubstitute() != null ? reading.getSubstitute().toString() : "") + "\n"
-                );
+                writer.write(String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
+                        Objects.toString(reading.getId(), ""),
+                        Objects.toString(reading.getComment(), ""),
+                        Objects.toString(reading.getCustomer() != null ? reading.getCustomer().getId() : "", ""),
+                        Objects.toString(reading.getDateOfReading(), ""),
+                        Objects.toString(reading.getKindOfMeter(), ""),
+                        Objects.toString(reading.getMeterCount(), ""),
+                        Objects.toString(reading.getMeterId(), ""),
+                        Objects.toString(reading.getSubstitute(), "")
+                ));
             }
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.csv\"")
+                    .type("text/csv")
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
