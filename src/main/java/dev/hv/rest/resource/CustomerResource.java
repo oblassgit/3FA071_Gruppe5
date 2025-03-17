@@ -1,5 +1,8 @@
 package dev.hv.rest.resource;
 
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
@@ -16,6 +19,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -164,6 +168,44 @@ public class CustomerResource {
         }
 
 
+    }
+
+    @GET
+    @Path("/export/csv")
+    @Produces("text/csv")
+    public Response exportCSV() {
+        try {
+
+            CsvMapper csvMapper = new CsvMapper();
+            CsvSchema schema = csvMapper.schemaFor(Customer.class).withHeader();
+            StringWriter writer = new StringWriter();
+            csvMapper.writer(schema).writeValue(writer, customerDao.getAllCustomers());
+
+            return Response.ok(writer.toString())
+                    .header("Content-Disposition", "attachment; filename=\"data.csv\"")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().entity("Error exporting CSV").build();
+        }
+    }
+
+    @GET
+    @Path("/export/xml")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response exportXML() {
+        try {
+            XmlMapper xmlMapper = new XmlMapper();
+            StringWriter writer = new StringWriter();
+            xmlMapper.writeValue(writer, customerDao.getAllCustomers());
+
+            return Response.ok(writer.toString())
+                    .header("Content-Disposition", "attachment; filename=\"data.xml\"")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().entity("Error exporting XML").build();
+        }
     }
 
 }

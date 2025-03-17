@@ -4,6 +4,8 @@ import java.net.URI;
 import com.sun.net.httpserver.HttpServer;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+
 
 public class Server {
     static final String pack = "dev.hv.rest.resource";
@@ -16,7 +18,8 @@ public class Server {
         //final ResourceConfig rc = new ResourceConfig().packages(pack).register(AuthenticationFilter.class);
         final ResourceConfig rc = new ResourceConfig()
                 .packages(pack)
-                .register(CORSFilter.class);
+                .register(CORSFilter.class)
+                .register(MultiPartFeature.class);
 
         server = JdkHttpServerFactory.createHttpServer(URI.create(url), rc);
         System.out.println("Ready for Requests....");
