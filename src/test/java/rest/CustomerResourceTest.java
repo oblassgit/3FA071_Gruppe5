@@ -40,6 +40,7 @@ public class CustomerResourceTest {
     private static CustomerDao mockCustomerDao;
     private static UUID testUuid1;
     private static UUID testUuid2;
+    private static Customer mockCustomerNoId;
     private static Customer mockCustomer1;
     private static Customer mockCustomer2;
 
@@ -52,6 +53,7 @@ public class CustomerResourceTest {
         testUuid2 = UUID.randomUUID();
         mockCustomer1 = new Customer(testUuid1, "John", "Doe", LocalDate.now(), Gender.M);
         mockCustomer2 = new Customer(testUuid2, "John", "Doe", LocalDate.now(), Gender.M);
+        mockCustomerNoId = new Customer(null, "John", "Doe", LocalDate.now(), Gender.M);
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
 
         customerResource = new CustomerResource(mockDbConnection, mockCustomerDao);
@@ -145,6 +147,25 @@ public class CustomerResourceTest {
         Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer1);
 
         Response response = customerResource.createCustomer(mockCustomer1);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        System.out.println(jsonResponse);
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
+        Schema schema = SchemaLoader.load(schemaJson);
+
+        JSONObject responseJson = new JSONObject(jsonResponse);
+        assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testCustomerWithoutIdCreated() throws SQLException, JsonProcessingException {
+        Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomerNoId);
+
+        Response response = customerResource.createCustomer(mockCustomerNoId);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
