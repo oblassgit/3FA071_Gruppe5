@@ -70,7 +70,7 @@ public class ExportTest {
         readingList.add(mockReading1);
         readingList.add(mockReading2);
 
-        readingResource = new ReadingResource(mockDbConnection, mockReadingDao);
+        readingResource = new ReadingResource(mockDbConnection, mockReadingDao, mockCustomerDao);
     }
 
     // CSV TESTS
