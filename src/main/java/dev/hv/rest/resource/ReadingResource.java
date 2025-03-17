@@ -1,7 +1,5 @@
 package dev.hv.rest.resource;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import dev.hv.Util;
 import dev.hv.db.CustomerDao;
@@ -221,6 +219,40 @@ public class ReadingResource {
         } catch (Exception e) {
             e.printStackTrace();
             return Response.serverError().entity("Error exporting XML").build();
+        }
+    }
+
+    @GET
+    @Path("/export/csv")
+    @Produces("text/csv")
+    public Response exportCSV() {
+        try {
+            StringWriter writer = new StringWriter();
+            List<Reading> readings = readingDao.getReadings(null, null, null, null);
+
+            // Write header
+            writer.write("id,comment,customerId,dateOfReading,kindOfMeter,meterCount,meterId,substitute\n");
+
+            // Write readings to CSV format
+            for (Reading reading : readings) {
+                writer.write(
+                        reading.getId() + "," +
+                                (reading.getComment() != null ? reading.getComment() : "") + "," +
+                                (reading.getCustomer() != null ? reading.getCustomer().getId().toString() : "") + "," +
+                                (reading.getDateOfReading() != null ? reading.getDateOfReading().toString() : "") + "," +
+                                (reading.getKindOfMeter() != null ? reading.getKindOfMeter().name() : "") + "," +
+                                (reading.getMeterCount() != null ? reading.getMeterCount().toString() : "") + "," +
+                                (reading.getMeterId() != null ? reading.getMeterId() : "") + "," +
+                                (reading.getSubstitute() != null ? reading.getSubstitute().toString() : "") + "\n"
+                );
+            }
+
+            return Response.ok(writer.toString())
+                    .header("Content-Disposition", "attachment; filename=\"data.csv\"")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().entity("Error exporting CSV").build();
         }
     }
 }
