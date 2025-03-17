@@ -144,8 +144,13 @@ public class ReadingDao {
                     double meterCount = resultSet.getDouble("meter_count");
                     String meterId = resultSet.getString("meter_id");
                     boolean substitute = resultSet.getBoolean("substitute");
-
-                    Customer customer = new CustomerDao(connection).getCustomer(UUID.fromString(resultSet.getString("customer_id")));
+                    Customer customer;
+                    String rsCustomerId = resultSet.getString("customer_id");
+                    if (rsCustomerId == null || rsCustomerId.isEmpty()) {
+                        customer = null;
+                    } else {
+                        customer = new CustomerDao(connection).getCustomer(UUID.fromString(resultSet.getString("customer_id")));
+                    }
                     readings.add(new Reading(readingId, comment, customer, dateOfReading, meterType, meterCount, meterId, substitute));
                 }
             }
