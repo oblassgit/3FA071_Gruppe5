@@ -3,24 +3,18 @@ package dev.hv.rest.resource;
 import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
+import dev.hv.enums.Gender;
+import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Path("customers")
 public class CustomerResource {
@@ -45,20 +39,52 @@ public class CustomerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllCustomers() {
-        CustomerList customerList;
+    public Response getAllCustomers(
+            @QueryParam("start") String startDateRaw,
+            @QueryParam("end") String endDateRaw,
+            @QueryParam("gender") String genderRaw
+    ) {
+        HashMap<String, List<Reading>> returnObject = new HashMap<String, List<Reading>>();
 
+        List<Customer> customerList = new ArrayList<>();
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        Gender gender = null;
+
+        try {
+            String pattern = "yyyy-MM-dd";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+            if (startDateRaw != null) {
+                if (util.validateDateTime(startDateRaw, pattern)) {
+                    startDate = LocalDate.parse(startDateRaw, formatter);
+                } else {
+                    throw new Exception("Invalid start format");
+                }
+            }
+            if (endDateRaw != null) {
+                if (util.validateDateTime(endDateRaw, pattern)) {
+                    endDate = LocalDate.parse(endDateRaw, formatter);
+                } else {
+                    throw new Exception("Invalid end format");
+                }
+            }
+            if (genderRaw != null) {
+                gender = Gender.valueOf(genderRaw.toUpperCase());
+            }
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
 
         try {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
 
-            customerList = new CustomerList(customerDao.getAllCustomers());
+            customerList = customerDao.getCustomers(startDate, endDate, gender);
 
         } catch (SQLException e) {
             return Response.serverError().build();
         }
-        
         return Response.ok(customerList).build();
     }
 
