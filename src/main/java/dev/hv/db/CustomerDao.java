@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,6 +92,52 @@ public class CustomerDao {
         }
 
         return null;
+    }
+
+    public List<Customer> getCustomers(LocalDate startDate, LocalDate endDate, Gender gender) throws SQLException {
+        List<Customer> customers = new ArrayList<>();
+
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM customer WHERE 1=1");
+        List<Object> parameters = new ArrayList<>();
+
+        if (startDate != null) {
+            queryBuilder.append(" AND birth_date > ?");
+            parameters.add(Date.valueOf(startDate));
+        }
+        if (endDate != null) {
+            queryBuilder.append(" AND birth_date < ?");
+            parameters.add(Date.valueOf(endDate));
+        }
+        if (gender != null) {
+            queryBuilder.append(" AND gender = ?");
+            parameters.add(gender.toString());
+        }
+
+        try (PreparedStatement stmt = connection.prepareStatement(queryBuilder.toString())) {
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    LocalDate dateOfCustomer = resultSet.getDate("birth_date").toLocalDate();
+                    Gender genderOfCustomer = Gender.valueOf(resultSet.getString("gender"));
+                    List<Customer> customerList = new ArrayList<>();
+
+                    customerList = new CustomerDao(connection).getAllCustomers();
+                    for (Customer customer : customerList) {
+                        if (customer.getBirthDate().equals(dateOfCustomer) || customer.getGender().equals(genderOfCustomer)) {
+                            customers.add(customer);
+                        } else {
+                            continue;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return customers;
     }
 
     public List<Customer> getAllCustomers() throws SQLException {

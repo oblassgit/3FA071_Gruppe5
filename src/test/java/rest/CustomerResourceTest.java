@@ -125,7 +125,7 @@ public class CustomerResourceTest {
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
 
-        Response response = customerResource.getAllCustomers();
+        Response response = customerResource.getAllCustomers(null,null,null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
 
