@@ -182,4 +182,34 @@ public class CustomerDao {
         updateStatement.setString(5, customer.getId().toString());
         updateStatement.executeUpdate();
     }
+
+    public void importCustomerData(List<Customer> customers) throws SQLException{
+        StringBuilder queryBuilder = new StringBuilder("INSERT INTO customer (id, first_name, last_name, birth_date, gender) VALUES ");
+        List<Object> parameters = new ArrayList<>();
+
+        for (int i = 0; i < customers.size(); i++) {
+            Customer customer = customers.get(i);
+            queryBuilder.append("(?, ?, ?, ?, ?)");
+
+            if (i < customers.size() - 1) {
+                queryBuilder.append(", ");
+            }
+
+            parameters.add(customer.getId());
+            parameters.add(customer.getFirstName());
+            parameters.add(customer.getLastName());
+            parameters.add(customer.getBirthDate());
+            parameters.add(customer.getGender());
+        }
+
+        PreparedStatement stmt = connection.prepareStatement(queryBuilder.toString()); 
+    
+        for (int j = 0; j < parameters.size(); j++) {
+            stmt.setObject(j + 1, parameters.get(j));
+        }
+
+        stmt.executeQuery();
+    }
 }
+
+//todo: api route und daten übergabe von frontend
