@@ -7,7 +7,6 @@ import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
-import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.*;
@@ -43,7 +42,7 @@ public class CustomerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllCustomers(
+    public Response getCustomers(
             @QueryParam("start") String startDateRaw,
             @QueryParam("end") String endDateRaw,
             @QueryParam("gender") String genderRaw
