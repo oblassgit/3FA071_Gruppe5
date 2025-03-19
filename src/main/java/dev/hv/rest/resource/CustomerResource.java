@@ -47,9 +47,8 @@ public class CustomerResource {
             @QueryParam("end") String endDateRaw,
             @QueryParam("gender") String genderRaw
     ) {
-        HashMap<String, List<Reading>> returnObject = new HashMap<String, List<Reading>>();
 
-        List<Customer> customerList = new ArrayList<>();
+        CustomerList customerList = new CustomerList(Collections.emptyList());
         LocalDate startDate = null;
         LocalDate endDate = null;
         Gender gender = null;
@@ -83,7 +82,7 @@ public class CustomerResource {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
 
-            customerList = customerDao.getCustomers(startDate, endDate, gender);
+            customerList.addAll(customerDao.getCustomers(startDate, endDate, gender));
 
         } catch (SQLException e) {
             return Response.serverError().build();
