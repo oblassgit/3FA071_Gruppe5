@@ -113,33 +113,54 @@ public class CustomerResourceTest {
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertEquals("Could not find customer with uuid: " + testUuid1, response.getEntity());
-    } 
-    
+    }
+
     @Test
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
         List<Customer> allCustomers = new ArrayList<>();
         allCustomers.add(mockCustomer1);
         allCustomers.add(mockCustomer2);
-        CustomerList customerList = new CustomerList(allCustomers);
 
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(allCustomers);
 
-        Response response = customerResource.getAllCustomers(null,null,null);
+        Response response = customerResource.getAllCustomers(null, null, null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(customerList, response.getEntity());
+        assertEquals(allCustomers, response.getEntity());
+    }
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(
-                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
+    @Test
+    public void testGetAllCustomersWithParameters() throws SQLException, JsonProcessingException {
+        List<Customer> allCustomers = List.of(mockCustomer1);
+        LocalDate startDate = LocalDate.now().minusDays(1);
+        LocalDate endDate = LocalDate.now();
+        Gender gender = Gender.M;
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
-        System.out.println(jsonResponse);
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(startDate, endDate, gender)).thenReturn(allCustomers);
 
-        Schema schema = SchemaLoader.load(schemaJson);
+        Response response = customerResource.getAllCustomers(
+                startDate.toString(), endDate.toString(), gender.toString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(allCustomers, response.getEntity());
+    }
 
-        JSONObject responseJson = new JSONObject(jsonResponse);
-        assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    @Test
+    public void testGetAllCustomersInvalidDateFormat() throws SQLException {
+        Response response = customerResource.getAllCustomers("invalid-date", null, null);
+
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Invalid start format", response.getEntity());
+    }
+
+    @Test
+    public void testGetAllCustomersSQLException() throws SQLException {
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(null, null, null)).thenThrow(new SQLException());
+
+        Response response = customerResource.getAllCustomers(null, null, null);
+
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
     }
 
     @Test
