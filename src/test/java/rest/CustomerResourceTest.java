@@ -116,16 +116,16 @@ public class CustomerResourceTest {
     } 
     
     @Test
-    public void testGetAllCustomers() throws SQLException, JsonProcessingException {
+    public void testGetCustomers() throws SQLException, JsonProcessingException {
         List<Customer> allCustomers = new ArrayList<>();
         allCustomers.add(mockCustomer1);
         allCustomers.add(mockCustomer2);
         CustomerList customerList = new CustomerList(allCustomers);
 
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
 
-        Response response = customerResource.getAllCustomers(null,null,null);
+        Response response = customerResource.getCustomers(null,null,null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
 
