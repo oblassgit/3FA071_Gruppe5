@@ -198,7 +198,7 @@ public class CustomerDao {
             parameters.add(customer.getId());
             parameters.add(customer.getFirstName());
             parameters.add(customer.getLastName());
-            parameters.add(customer.getBirthDate());
+            parameters.add(customer.getBirthDate()); //Fehler
             parameters.add(customer.getGender());
         }
 

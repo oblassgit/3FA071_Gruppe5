@@ -7,7 +7,6 @@ import dev.hv.Util;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
-import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.*;
@@ -235,6 +234,23 @@ public class CustomerResource {
             return Response.serverError().entity("Error exporting XML").build();
         }
     }
+
+    @POST
+    @Path("/createcustomers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response importCSV(CustomerList customerImportList) {
+
+        try {
+            customerDao.importCustomerData(customerImportList.getCustomers());
+        } catch (SQLException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.status(Response.Status.CREATED)
+                .entity(customerImportList)
+                .build();
+    }
+
 
 }
 
