@@ -16,11 +16,15 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomerDaoTest {
 
@@ -98,9 +102,43 @@ public class CustomerDaoTest {
     }
 
     @Test
+    public void testGetCustomersByDateRange() throws SQLException {
+        // Arrange
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        // Act
+        List<Customer> result = customerDao.getCustomers(LocalDate.of(1980, 1, 1), LocalDate.of(1989, 12, 31), null);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.get(0).getId());
+    }
+
+    @Test
+    public void testGetCustomersByGender() throws SQLException {
+        // Arrange
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        // Act
+        List<Customer> result = customerDao.getCustomers(null, null, Gender.W);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.getFirst().getId());
+    }
+
+    @Test
     public void testGetReadingsForCustomer() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-        
+
         ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
 
