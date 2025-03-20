@@ -132,7 +132,7 @@ public class CustomerDaoTest {
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals(customer1.getId(), result.getFirst().getId());
+        assertEquals(customer1.getId(), result.get(0).getId());
     }
 
     @Test
