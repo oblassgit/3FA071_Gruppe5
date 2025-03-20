@@ -125,7 +125,7 @@ public class CustomerResourceTest {
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
 
-        Response response = customerResource.getCustomers(null,null,null);
+        Response response = customerResource.getCustomers(null, null, null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(customerList, response.getEntity());
 
@@ -140,6 +140,46 @@ public class CustomerResourceTest {
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
+    }
+
+    @Test
+    public void testGetCustomersWithGenderFilter() throws SQLException {
+        List<Customer> maleCustomers = new ArrayList<>();
+        maleCustomers.add(mockCustomer1);
+        CustomerList customerList = new CustomerList(maleCustomers);
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(null, null, Gender.M)).thenReturn(customerList);
+
+        Response response = customerResource.getCustomers(null, null, "M");
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+    }
+
+    @Test
+    public void testGetCustomersWithDateRange() throws SQLException {
+        List<Customer> dateFilteredCustomers = new ArrayList<>();
+        dateFilteredCustomers.add(mockCustomer1);
+        CustomerList customerList = new CustomerList(dateFilteredCustomers);
+
+        LocalDate startDate = LocalDate.now().minusDays(10);
+        LocalDate endDate = LocalDate.now();
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(startDate, endDate, null)).thenReturn(customerList);
+
+        Response response = customerResource.getCustomers(startDate.toString(), endDate.toString(), null);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+    }
+
+    @Test
+    public void testGetCustomersBadRequest() {
+        String invalidStartDate = "invalid-date";
+
+        Response response = customerResource.getCustomers(invalidStartDate, null, null);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Invalid start format", response.getEntity());
     }
 
     @Test
