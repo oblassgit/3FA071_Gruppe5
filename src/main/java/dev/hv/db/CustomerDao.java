@@ -123,13 +123,10 @@ public class CustomerDao {
                     LocalDate dateOfCustomer = resultSet.getDate("birth_date").toLocalDate();
                     Gender genderOfCustomer = Gender.valueOf(resultSet.getString("gender"));
                     List<Customer> customerList = new ArrayList<>();
-
                     customerList = new CustomerDao(connection).getAllCustomers();
                     for (Customer customer : customerList) {
-                        if (customer.getBirthDate().equals(dateOfCustomer) || customer.getGender().equals(genderOfCustomer)) {
+                        if (customer.getBirthDate().equals(dateOfCustomer) && customer.getGender().equals(genderOfCustomer)) {
                             customers.add(customer);
-                        } else {
-                            continue;
                         }
                     }
 
