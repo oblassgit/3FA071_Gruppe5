@@ -8,6 +8,7 @@ import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.model.Customer;
+import dev.hv.model.CustomerResponse;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -88,7 +89,7 @@ public class CustomerResource {
         } catch (SQLException e) {
             return Response.serverError().build();
         }
-        return Response.ok(customerList).build();
+        return Response.ok(new CustomerList(customerList)).build();
     }
 
     @Path("/{uuid}")
@@ -109,7 +110,7 @@ public class CustomerResource {
         }
 
         //Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
-        return Response.ok(customer).build();
+        return Response.ok(new CustomerResponse(customer)).build();
     }
 
     @Path("/{uuid}")
@@ -170,7 +171,7 @@ public class CustomerResource {
         }
 
         return Response.status(Response.Status.CREATED)
-                .entity(customer)
+                .entity(new CustomerResponse(customer))
                 .build();
     }
 
@@ -235,10 +236,12 @@ public class CustomerResource {
         }
     }
 
+
     @POST
-    @Path("/createcustomers")
+    @Path("/import")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response importCSV(CustomerList customerImportList) {
+        System.out.println("import called");
 
         try {
             customerDao.importCustomerData(customerImportList.getCustomers());
@@ -246,11 +249,7 @@ public class CustomerResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        return Response.status(Response.Status.CREATED)
-                .entity(customerImportList)
-                .build();
+        return Response.status(Response.Status.CREATED).build();
     }
-
-
 }
 

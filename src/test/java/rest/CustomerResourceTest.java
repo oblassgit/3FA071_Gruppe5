@@ -3,6 +3,7 @@ package rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.enums.KindOfMeter;
+import dev.hv.model.CustomerResponse;
 import dev.hv.model.Reading;
 import dev.hv.rest.resource.ReadingList;
 import jakarta.ws.rs.core.Response;
@@ -61,21 +62,30 @@ public class CustomerResourceTest {
 
     @Test
     public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
+        // Mocking the DAO call
         when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
 
-
+        // Calling the API endpoint
         Response response = customerResource.getCustomer(testUuid1.toString());
+
+        // Deserialize response entity to CustomerResponse
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        CustomerResponse customerResponse = objectMapper.convertValue(response.getEntity(), CustomerResponse.class);
+
+        // Debugging: Print formatted JSON output
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(customerResponse);
         System.out.println(jsonResponse);
 
+        // Assertions
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(mockCustomer1, response.getEntity());
+        assertEquals(mockCustomer1, customerResponse.getCustomer()); // Compare actual customer objects
 
+        // Load and validate against JSON schema
         JSONObject schemaJson = new JSONObject(new JSONTokener(
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
+        // Convert JSON string to JSONObject for validation
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
@@ -113,34 +123,41 @@ public class CustomerResourceTest {
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertEquals("Could not find customer with uuid: " + testUuid1, response.getEntity());
-    } 
-    
+    }
+
     @Test
     public void testGetAllCustomers() throws SQLException, JsonProcessingException {
-        List<Customer> allCustomers = new ArrayList<>();
-        allCustomers.add(mockCustomer1);
-        allCustomers.add(mockCustomer2);
-        CustomerList customerList = new CustomerList(allCustomers);
+        // Prepare mock data
+        List<Customer> allCustomers = List.of(mockCustomer1, mockCustomer2);
+        CustomerList expectedResponse = new CustomerList(allCustomers);
 
-        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getAllCustomers()).thenReturn(allCustomers);
+        // Ensure DAO returns mock customers
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(allCustomers);
 
-        Response response = customerResource.getAllCustomers(null,null,null);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(customerList, response.getEntity());
+        // Call the endpoint
+        Response response = customerResource.getAllCustomers(null, null, null);
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(
-                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
-
+        // Deserialize response entity
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        CustomerList actualResponse = objectMapper.convertValue(response.getEntity(), CustomerList.class);
+
+        // Debugging: Print JSON response
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(actualResponse);
         System.out.println(jsonResponse);
 
+        // Assertions
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(expectedResponse.getCustomers(), actualResponse.getCustomers()); // Compare the actual lists
+
+        // Validate against JSON schema
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
+
 
     @Test
     public void testCreateCustomerCreated() throws SQLException, JsonProcessingException {

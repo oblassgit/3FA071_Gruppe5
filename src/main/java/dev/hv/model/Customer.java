@@ -2,8 +2,6 @@ package dev.hv.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -15,9 +13,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo
-        .Id.NAME)
-@JsonTypeName(value = "customer")
+
 public class Customer implements ICustomer {
     private String firstName;
     private String lastName;
@@ -32,7 +28,7 @@ public class Customer implements ICustomer {
 
     public Customer() {}
 
-    public Customer (UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) {
+    public Customer(UUID id, String firstName, String lastName, LocalDate birthDate, Gender gender) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -40,54 +36,57 @@ public class Customer implements ICustomer {
         this.gender = gender;
     }
 
-    @Override
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    @Override
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    @Override
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    @Override
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    @Override
+    // Getters and Setters
     public String getFirstName() {
         return firstName;
     }
 
-    @Override
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public String getLastName() {
         return lastName;
     }
 
-    @Override
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    @Override
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
     public Gender getGender() {
         return gender;
     }
 
-    @Override
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
     public UUID getId() {
         return id;
     }
 
-    @Override
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(firstName, customer.firstName) &&
+                Objects.equals(lastName, customer.lastName) &&
+                Objects.equals(birthDate, customer.birthDate) &&
+                gender == customer.gender &&
+                id.equals(customer.id);
     }
 
     @Override
@@ -99,13 +98,5 @@ public class Customer implements ICustomer {
                 ", gender=" + gender +
                 ", id=" + id +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return Objects.equals(firstName, customer.firstName) && Objects.equals(lastName, customer.lastName) && Objects.equals(birthDate, customer.birthDate) && gender == customer.gender && id.equals(customer.id);
     }
 }
