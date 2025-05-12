@@ -19,7 +19,7 @@ import java.util.UUID;
 public class CustomerDao {
 
     private Connection connection;
-    
+
 
     PreparedStatement createStatement;
     PreparedStatement deleteStatement;
@@ -72,7 +72,7 @@ public class CustomerDao {
 
             alterConstraintStatement.execute(
                     "ALTER TABLE reading ADD CONSTRAINT customer_fk FOREIGN KEY (customer_id) REFERENCES customer (id);");
-            
+
             transactionStatement.executeQuery("commit");
         } catch (SQLException e) {
             Statement rollbackStatement = connection.createStatement();
@@ -120,16 +120,14 @@ public class CustomerDao {
 
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
-                    LocalDate dateOfCustomer = resultSet.getDate("birth_date").toLocalDate();
-                    Gender genderOfCustomer = Gender.valueOf(resultSet.getString("gender"));
-                    List<Customer> customerList = new ArrayList<>();
-                    customerList = new CustomerDao(connection).getAllCustomers();
-                    for (Customer customer : customerList) {
-                        if (customer.getBirthDate().equals(dateOfCustomer) && customer.getGender().equals(genderOfCustomer)) {
-                            customers.add(customer);
-                        }
-                    }
+                    Customer customer = new Customer();
+                    customer.setId(UUID.fromString(resultSet.getString("id")));
+                    customer.setFirstName(resultSet.getString("first_name"));
+                    customer.setLastName(resultSet.getString("last_name"));
+                    customer.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                    customer.setGender(Gender.valueOf(resultSet.getString("gender")));
 
+                    customers.add(customer);
                 }
             }
         }
