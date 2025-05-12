@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class CustomerDaoTest {
 
     static DatabaseCon databaseCon = new DatabaseCon();
@@ -43,19 +45,29 @@ public class CustomerDaoTest {
         customer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
 
         customerDao = new CustomerDao(databaseCon.getConnection());
-        customerDao.createCustomer(customer);
 
     }
 
     @Test
     public void testCreateCustomer() throws SQLException {
-        Customer newCustomer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
+        UUID uuid = UUID.randomUUID();
+        Customer newCustomer = new Customer(uuid, "Oliver", "Blass", LocalDate.now(), Gender.M);
+
+        System.out.println("Before insert: " + customerDao.getAllCustomers().size()); // Debug log
 
         customerDao.createCustomer(newCustomer);
+
+        int customerCount = customerDao.getAllCustomers().size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(1, customerCount);
+        assertNotNull(customerDao.getCustomer(uuid));
     }
 
     @Test
     public void testGetCustomer() throws SQLException {
+        customerDao.createCustomer(customer);
+
         assertEquals(customer.getId(), customerDao.getCustomer(customer.getId()).getId());
     }
 
@@ -78,6 +90,8 @@ public class CustomerDaoTest {
 
     @Test
     public void testUpdateCustomer() throws SQLException {
+        customerDao.createCustomer(customer);
+
         assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.M);
         Customer updatedCustomer = new Customer(customer.getId(), "Sigrid", "Blass", customer.getBirthDate(), Gender.W);
         customerDao.updateCustomer(updatedCustomer);
@@ -98,9 +112,37 @@ public class CustomerDaoTest {
     }
 
     @Test
+    public void testGetCustomersByDateRange() throws SQLException {
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        List<Customer> result = customerDao.getCustomers(LocalDate.of(1980, 1, 1), LocalDate.of(1989, 12, 31), null);
+
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.get(0).getId());
+    }
+
+    @Test
+    public void testGetCustomersByGender() throws SQLException {
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        List<Customer> result = customerDao.getCustomers(null, null, Gender.W);
+
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.get(0).getId());
+    }
+
+    @Test
     public void testGetReadingsForCustomer() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-        
+
         ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
 

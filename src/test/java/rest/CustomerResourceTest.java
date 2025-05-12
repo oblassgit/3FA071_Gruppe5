@@ -126,16 +126,22 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testGetAllCustomers() throws SQLException, JsonProcessingException {
-        // Prepare mock data
-        List<Customer> allCustomers = List.of(mockCustomer1, mockCustomer2);
-        CustomerList expectedResponse = new CustomerList(allCustomers);
 
-        // Ensure DAO returns mock customers
-        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(allCustomers);
+    public void testGetCustomers() throws SQLException, JsonProcessingException {
+        List<Customer> allCustomers = new ArrayList<>();
+        allCustomers.add(mockCustomer1);
+        allCustomers.add(mockCustomer2);
+        CustomerList customerList = new CustomerList(allCustomers);
 
-        // Call the endpoint
-        Response response = customerResource.getAllCustomers(null, null, null);
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
+
+        Response response = customerResource.getCustomers(null, null, null);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
 
         // Deserialize response entity
         ObjectMapper objectMapper = new ObjectMapper();
@@ -158,6 +164,46 @@ public class CustomerResourceTest {
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 
+
+    @Test
+    public void testGetCustomersWithGenderFilter() throws SQLException {
+        List<Customer> maleCustomers = new ArrayList<>();
+        maleCustomers.add(mockCustomer1);
+        CustomerList customerList = new CustomerList(maleCustomers);
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(null, null, Gender.M)).thenReturn(customerList);
+
+        Response response = customerResource.getCustomers(null, null, "M");
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+    }
+
+    @Test
+    public void testGetCustomersWithDateRange() throws SQLException {
+        List<Customer> dateFilteredCustomers = new ArrayList<>();
+        dateFilteredCustomers.add(mockCustomer1);
+        CustomerList customerList = new CustomerList(dateFilteredCustomers);
+
+        LocalDate startDate = LocalDate.now().minusDays(10);
+        LocalDate endDate = LocalDate.now();
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(startDate, endDate, null)).thenReturn(customerList);
+
+        Response response = customerResource.getCustomers(startDate.toString(), endDate.toString(), null);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(customerList, response.getEntity());
+    }
+
+    @Test
+    public void testGetCustomersBadRequest() {
+        String invalidStartDate = "invalid-date";
+
+        Response response = customerResource.getCustomers(invalidStartDate, null, null);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Invalid start format", response.getEntity());
+    }
 
     @Test
     public void testCreateCustomerCreated() throws SQLException, JsonProcessingException {
