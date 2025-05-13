@@ -159,4 +159,42 @@ public class ReadingDao {
         return readings;
     }
 
+    public void importReadingData(List<Reading> readings) throws SQLException {
+        // Start transaction
+        connection.setAutoCommit(false); // Disable auto-commit to manage transaction manually
+
+        String query = "INSERT INTO reading (id, comment, customer, dateofreading, kindofmeter, meterid, substitute) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            // Loop through the readings and set parameters for each insert
+            for (Reading reading : readings) {
+                //WIP
+                stmt.setObject(1, reading.getId() == null ? UUID.randomUUID() : reading.getId());
+                stmt.setString( 2, reading.getComment());
+                stmt.setObject(3, reading.getCustomer());
+                stmt.setObject(4, reading.getDateOfReading());
+                stmt.setObject(5, reading.getKindOfMeter());  // Assuming birthDate is LocalDate and will be handled correctly
+                stmt.setString(6, reading.getMeterId().toString());
+                stmt.setBoolean(7, reading.getSubstitute());
+
+                // Add the statement to the batch
+
+                stmt.addBatch();
+            }
+
+            // Execute the batch insert
+            stmt.executeBatch();
+
+            // Commit the transaction if all insertions succeed
+            connection.commit();
+        } catch (SQLException e) {
+            // Rollback the entire transaction if any error occurs
+            connection.rollback();
+            throw new SQLException("Failed to import reading data, rolling back transaction.", e);
+        } finally {
+            // Restore auto-commit mode and clean up resources
+            connection.setAutoCommit(true);
+        }
+    }
+
 }

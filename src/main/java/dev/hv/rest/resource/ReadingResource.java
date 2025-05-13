@@ -260,4 +260,19 @@ public class ReadingResource {
             return Response.serverError().entity("Error exporting CSV").build();
         }
     }
+
+    @POST
+    @Path("/import")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response importCSV(ReadingList readingList) {
+        System.out.println("import called");
+
+        try {
+            readingDao.importReadingData(readingList.getReadings());
+        } catch (SQLException e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        return Response.status(Response.Status.CREATED).build();
+    }
 }
