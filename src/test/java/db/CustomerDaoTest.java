@@ -15,6 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -149,6 +150,48 @@ public class CustomerDaoTest {
         customerDao.getReadingsForCustomer(customer);
         assertNotNull(customerDao.getReadingsForCustomer(customer));
         assertEquals(customerDao.getReadingsForCustomer(customer).size(), 1);
+    }
+
+    @Test
+    public void testImportCustomerDataWithUuid() throws SQLException {
+        UUID uuid = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
+
+        System.out.println("Before insert: " + customerDao.getCustomers(null, null, null).size()); // Debug log
+
+        Customer newCustomer = new Customer(uuid, "Bilbo", "Beutlin", LocalDate.now(), Gender.M);
+        Customer newCustomer2 = new Customer(uuid2, "Hans", "Wurst", LocalDate.now(), Gender.U);
+        List<Customer> list = new ArrayList<>();
+        list.add(newCustomer);
+        list.add(newCustomer2);
+
+        customerDao.importCustomerData(list);
+
+        int customerCount = customerDao.getCustomers(null, null, null).size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(2, customerCount);
+        assertNotNull(customerDao.getCustomer(uuid));
+    }
+
+    @Test
+    public void testImportCustomerDataWithoutUuid() throws SQLException {
+
+        System.out.println("Before insert: " + customerDao.getCustomers(null, null, null).size()); // Debug log
+
+        Customer newCustomer = new Customer(null, "Gandalf", "Der Graue", LocalDate.now(), Gender.M);
+        Customer newCustomer2 = new Customer(null, "Hans", "Wurst", LocalDate.now(), Gender.U);
+        List<Customer> list = new ArrayList<>();
+        list.add(newCustomer);
+        list.add(newCustomer2);
+
+        customerDao.importCustomerData(list);
+
+        int customerCount = customerDao.getCustomers(null, null, null).size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(2, customerCount);
+        assertNotNull(customerDao.getCustomers(null, null, null).get(0));
     }
 
     @AfterAll
