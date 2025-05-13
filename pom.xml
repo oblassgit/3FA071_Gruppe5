@@ -28,7 +28,7 @@
         <maven.compiler.plugin.version>3.12.1</maven.compiler.plugin.version>
         <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
 
-        <main.class>org.group5.Main</main.class>
+        <main.class>dev.hv.rest.server.Server</main.class>
 
         <jacoco.version>0.8.12</jacoco.version>
 
@@ -135,6 +135,23 @@
         <defaultGoal>clean compile install</defaultGoal>
 
         <plugins>
+
+
+             <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>java</goal>
+                    </goals>
+                    <configuration>
+                        <mainClass>dev.hv.rest.server.Server</mainClass> <!-- Hier die Main-Class angeben -->
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
