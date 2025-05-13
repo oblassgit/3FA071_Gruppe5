@@ -1,6 +1,5 @@
 package dev.hv.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.interfaces.ICustomer;
 import dev.hv.model.interfaces.IReading;
@@ -11,16 +10,10 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-
-@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)
-@JsonTypeName(value = "reading")
-@JsonIgnoreProperties(ignoreUnknown = true)
 
 
 public class Reading implements IReading {

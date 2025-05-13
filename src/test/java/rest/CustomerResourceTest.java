@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.CustomerResponse;
 import dev.hv.model.Reading;
-import dev.hv.rest.resource.ReadingList;
 import jakarta.ws.rs.core.Response;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
@@ -252,11 +251,10 @@ public class CustomerResourceTest {
         List<Reading> readings = new ArrayList<>();
         readings.add(mockReading);
         readings.add(mockReading1);
-        ReadingList readingList = new ReadingList(readings);
 
         Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer1);
         when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
-        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(readingList);
+        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(readings);
 
         Response response = customerResource.deleteCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();

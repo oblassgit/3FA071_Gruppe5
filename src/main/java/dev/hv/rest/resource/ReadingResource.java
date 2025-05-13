@@ -8,6 +8,7 @@ import dev.hv.db.ReadingDao;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
+import dev.hv.model.ReadingResponse;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -70,7 +71,7 @@ public class ReadingResource {
             return Response.serverError().build();
         }
 
-        return Response.ok(reading).build();
+        return Response.ok(new ReadingResponse(reading)).build();
     }
 
     @Path("/{uuid}")
@@ -95,7 +96,7 @@ public class ReadingResource {
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
-        return Response.ok(reading).build();
+        return Response.ok(new ReadingResponse(reading)).build();
     }
 
     @POST
@@ -123,7 +124,7 @@ public class ReadingResource {
 
             readingDao.createReading(input);
 
-            return Response.status(Response.Status.CREATED).entity(input).build();
+            return Response.status(Response.Status.CREATED).entity(new ReadingResponse(input)).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();

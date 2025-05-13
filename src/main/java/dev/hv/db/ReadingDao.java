@@ -163,19 +163,20 @@ public class ReadingDao {
         // Start transaction
         connection.setAutoCommit(false); // Disable auto-commit to manage transaction manually
 
-        String query = "INSERT INTO reading (id, comment, customer, dateofreading, kindofmeter, meterid, substitute) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO reading (id, comment, customer_id, date_of_reading, meter_count, kind_of_meter, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
 
             // Loop through the readings and set parameters for each insert
             for (Reading reading : readings) {
                 //WIP
-                stmt.setObject(1, reading.getId() == null ? UUID.randomUUID() : reading.getId());
-                stmt.setString( 2, reading.getComment());
-                stmt.setObject(3, reading.getCustomer());
-                stmt.setObject(4, reading.getDateOfReading());
-                stmt.setObject(5, reading.getKindOfMeter());  // Assuming birthDate is LocalDate and will be handled correctly
-                stmt.setString(6, reading.getMeterId().toString());
-                stmt.setBoolean(7, reading.getSubstitute());
+                stmt.setString(1, reading.getId() == null ? UUID.randomUUID().toString() : reading.getId().toString());
+                stmt.setString( 2, reading.getComment() == null ? "" : reading.getComment());
+                stmt.setString(3, reading.getCustomer().getId().toString());
+                stmt.setDate(4, Date.valueOf(reading.getDateOfReading()));
+                stmt.setDouble(5, reading.getMeterCount());
+                stmt.setString(6, reading.getKindOfMeter().toString());  // Assuming birthDate is LocalDate and will be handled correctly
+                stmt.setString(7, reading.getMeterId());
+                stmt.setBoolean(8, reading.getSubstitute());
 
                 // Add the statement to the batch
 
@@ -183,6 +184,7 @@ public class ReadingDao {
             }
 
             // Execute the batch insert
+            System.out.println(stmt.toString());
             stmt.executeBatch();
 
             // Commit the transaction if all insertions succeed
@@ -190,6 +192,7 @@ public class ReadingDao {
         } catch (SQLException e) {
             // Rollback the entire transaction if any error occurs
             connection.rollback();
+            System.err.println(e.getMessage());
             throw new SQLException("Failed to import reading data, rolling back transaction.", e);
         } finally {
             // Restore auto-commit mode and clean up resources
