@@ -2,57 +2,82 @@
 
 [![maven-test](https://github.com/oblassgit/3FA071_Gruppe5/actions/workflows/maven-test.yml/badge.svg)](https://github.com/oblassgit/3FA071_Gruppe5/actions/workflows/maven-test.yml)
 
-https://github.com/oblassgit/3FA071_Gruppe5_UI
-## guide to get started
+[Link zur Benutzeroberfläche](https://github.com/oblassgit/3FA071_Gruppe5_UI)
 
-## 🔧 1. Softwareaufbau
+## ✅ Testabdeckung
 
-Die Anwendung besteht aus drei klar getrennten Hauptkomponenten:
+[███████████████████████████████████████████████████░░░░░░░░░░░░░] 82%
 
-### 🖥️ Frontend: Vue.js
+___
 
-Das Frontend basiert auf dem JavaScript-Framework **Vue.js** und stellt die Benutzeroberfläche der Anwendung bereit. Die Kommunikation mit dem Backend erfolgt über asynchrone HTTP-Requests (REST API) mithilfe von `axios`.
+## 👌 How to get it Running!
 
-- **Framework:** Vue.js 3
-- **Sprache:** JavaScript (ES6+)
-- **Build-Tool:** Vite oder Vue CLI
-- **API-Kommunikation:** REST über HTTP (Axios)
-- **Zielplattform:** Webbrowser (responsive)
+- Erster Step : Führe diesen Befehlt aus um das Backend zu starten -> "mvn clean compile exec:java".
+- Zweiter Step : Installiere NPM mit dem Befehlt  -> "npm install". 
+- Dritter Step : Führe diesen Befehl aus um das Backend zu starten -> "npm run preview".
 
-### 🖧 Backend: Java (Jersey + Maven)
 
-Das Backend ist mit **Java 21** realisiert und verwendet **Jersey (JAX-RS)** zur Implementierung von REST-konformen Webservices. Es ist modular aufgebaut mit klarer Trennung zwischen API-Schicht, Businesslogik und Datenzugriff.
+## 🔧 Softwarearchitektur
 
-- **Sprache:** Java 21
-- **Frameworks:** Jersey (JAX-RS), Jackson für JSON/XML
-- **Build-System:** Maven
-- **Tests:** JUnit 5, Mockito
-- **Code-Coverage:** JaCoCo
-- **Deployment:** Als eigenständige ausführbare JAR (via `exec-maven-plugin`)
-- **Dateiformate:** JSON (primär), optional XML/CSV
+Die Anwendung ist dreischichtig aufgebaut:
 
-### 🗄️ Datenbank: MariaDB
+### 🖧 Backend – Java (Jersey)
 
-Die persistenten Daten werden in einer **MariaDB**-SQL-Datenbank gespeichert. Die Verbindung erfolgt über JDBC mithilfe des offiziellen MariaDB Java-Clients.
+- Sprache: **Java 21**
+- REST-API mit **JAX-RS (Jersey 3.x)**
+- Struktur: Ressourcen- / Service- / DAO-Schicht
+- JSON/XML/CSV-Serialisierung via **Jackson**
+- Build-Tool: **Maven**
+- Tests: **JUnit 5**, **Mockito**
+- Code-Coverage: **JaCoCo**
 
-- **Datenbanktyp:** Relationale SQL-Datenbank (MariaDB)
-- **Zugriff:** JDBC (MariaDB Java Client)
-- **Schema-Verwaltung:** manuell oder via SQL-Skripte
-- **Authentifizierung:** Benutzername + Passwort
+### 🖥️ Frontend – Vue.js
 
-### 🔗 API-Kommunikation
+- Framework: **Vue.js 3** (Composition API)
+- Sprache: **JavaScript (ES6+)**
+- API-Kommunikation über **Axios** via REST (HTTP)
+- Build-Tool: **Vite** oder **Vue CLI**
+- Datenformat: **JSON**
 
-Das Frontend und Backend kommunizieren über eine **RESTful API**. Die Endpunkte unterstützen die folgenden HTTP-Methoden:
+### 🗄️ Datenbank – MariaDB
 
-- `GET` – Daten lesen
-- `POST` – Neue Daten erstellen
-- `PUT` / `PATCH` – Daten aktualisieren
-- `DELETE` – Daten löschen
+- Typ: **Relationale SQL-Datenbank**
+- Engine: **MariaDB** (Version ≥ 10.x)
+- JDBC-Treiber: `mariadb-java-client` (v3.3.3)
+- Zugriff über DAO mit JDBC
+- Konfiguration via `.env` / `application.properties`
 
-Standardmäßig erfolgt die Datenübertragung im **JSON-Format**, alternativ sind **XML** oder **CSV** möglich (via Content Negotiation).
+### 🔗 API-Spezifikation
 
-## UML Sequenzdiagramm:
+- Architektur: **RESTful API**
+- Methoden: `GET`, `POST`, `PUT`, `DELETE`
+- Standardformat: **JSON**, optional: XML / CSV
 
+___
+
+## 📡 REST API Endpunkte
+
+### Kunden-API – `/customers`
+
+- **GET `/customers`**: Liste von Kunden, optional mit Filtern (z.B. `start`, `end`, `gender`)
+- **GET `/customers/{uuid}`**: Einzelner Kunde per UUID
+- **DELETE `/customers/{uuid}`**: Löscht einen Kunden
+- **POST `/customers`**: Erstellt einen neuen Kunden
+- **PUT `/customers`**: Aktualisiert einen bestehenden Kunden
+- **GET `/customers/export/csv`**: CSV-Export aller Kunden
+- **GET `/customers/export/xml`**: XML-Export aller Kunden
+
+### Readings-API – `/readings`
+
+- **GET `/readings`**: Filter: `customer`, `start`, `end`, `kindOfMeter`
+- **GET `/readings/{uuid}`**: Einzelner Reading-Eintrag
+- **DELETE `/readings/{uuid}`**: Löscht einen Reading-Eintrag
+- **POST `/readings`**: Legt einen neuen Reading-Eintrag an
+- **PUT `/readings`**: Aktualisiert einen bestehenden Reading-Eintrag
+- **GET `/readings/export/xml`**: Exportiert alle Readings als `.xml`
+- **GET `/readings/export/csv`**: Exportiert alle Readings als `.csv`
+
+## UML Sequenzdiagramm für Beispiel GetCustomer 
 ```
        ┌─┐                                                                                                                                                              ,.-^^-._      
        ║"│                                                                                                                                                             |-.____.-|     
@@ -105,7 +130,9 @@ Standardmäßig erfolgt die Datenübertragung im **JSON-Format**, alternativ sin
        ┌┴┐                                                                                                                                                             '-.____.-'
 ```
 
-## UML Klassendiagramm:
+___
+
+## UML Relationmodell:
 ```
                ┌──────────────────────────────────┐               
                │customer                          │               
@@ -133,3 +160,19 @@ Standardmäßig erfolgt die Datenübertragung im **JSON-Format**, alternativ sin
 │substitute        : BOOL                                        │
 └────────────────────────────────────────────────────────────────┘
 ```
+
+___
+
+## CI/CD Pipeline: Maven-Test
+
+Automatisiert Tests und Coverage-Analyse bei jedem Push/Pull Request auf `main`.
+
+### Schritte:
+
+1. **Repository Checkout**: Lädt den Code.
+2. **MariaDB Setup**: Startet eine MariaDB-Instanz mit definierten Secrets.
+3. **Verbindungsprüfung**: Testet die Datenbankverbindung.
+4. **JDK 21 Setup**: Installiert Java 21.
+5. **Datenbankkonfiguration**: Schreibt Verbindungsdaten in `DbData.properties`.
+6. **Build und Tests**: Führt `mvn site -P test` aus.
+7. **Coverage-Report**: Zeigt Coverage-Details im PR an (min. 50 % gesamt, 80 % geänderte Dateien).
