@@ -17,7 +17,7 @@ public class CustomerList {
         return customers;
     }
 
-    public void setCustomers(List<Customer> customers) {
+    public void addAll(List<Customer> customers) {
         this.customers = customers;
     }
 }

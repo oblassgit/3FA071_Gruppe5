@@ -88,7 +88,7 @@ public class CustomerResource {
         } catch (SQLException e) {
             return Response.serverError().build();
         }
-        return Response.ok(new CustomerList(customerList)).build();
+        return Response.ok(customerList).build();
     }
 
     @Path("/{uuid}")
