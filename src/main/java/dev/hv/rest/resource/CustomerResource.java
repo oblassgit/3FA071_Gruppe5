@@ -43,14 +43,13 @@ public class CustomerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllCustomers(
+    public Response getCustomers(
             @QueryParam("start") String startDateRaw,
             @QueryParam("end") String endDateRaw,
             @QueryParam("gender") String genderRaw
     ) {
-        HashMap<String, List<Reading>> returnObject = new HashMap<String, List<Reading>>();
 
-        List<Customer> customerList = new ArrayList<>();
+        CustomerList customerList = new CustomerList(Collections.emptyList());
         LocalDate startDate = null;
         LocalDate endDate = null;
         Gender gender = null;
@@ -84,12 +83,12 @@ public class CustomerResource {
             databaseCon.openConnections(util.getProperties());
             databaseCon.createAllTables();
 
-            customerList = customerDao.getCustomers(startDate, endDate, gender);
+            customerList.addAll(customerDao.getCustomers(startDate, endDate, gender));
 
         } catch (SQLException e) {
             return Response.serverError().build();
         }
-        return Response.ok(new CustomerList(customerList)).build();
+        return Response.ok(customerList).build();
     }
 
     @Path("/{uuid}")

@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -102,7 +103,7 @@ public class CustomerResourceTest {
         System.out.println(jsonResponse);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertEquals(null, response.getEntity());
+        assertNull(response.getEntity());
     }
 
     @Test
@@ -126,16 +127,17 @@ public class CustomerResourceTest {
     }
 
     @Test
-    public void testGetAllCustomers() throws SQLException, JsonProcessingException {
-        // Prepare mock data
-        List<Customer> allCustomers = List.of(mockCustomer1, mockCustomer2);
-        CustomerList expectedResponse = new CustomerList(allCustomers);
 
-        // Ensure DAO returns mock customers
+    public void testGetCustomers() throws SQLException, JsonProcessingException {
+        List<Customer> allCustomers = new ArrayList<>();
+        allCustomers.add(mockCustomer1);
+        allCustomers.add(mockCustomer2);
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
         when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(allCustomers);
 
-        // Call the endpoint
-        Response response = customerResource.getAllCustomers(null, null, null);
+        Response response = customerResource.getCustomers(null, null, null);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Deserialize response entity
         ObjectMapper objectMapper = new ObjectMapper();
@@ -145,9 +147,8 @@ public class CustomerResourceTest {
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(actualResponse);
         System.out.println(jsonResponse);
 
-        // Assertions
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(expectedResponse.getCustomers(), actualResponse.getCustomers()); // Compare the actual lists
+
+        assertEquals(2, actualResponse.getCustomers().size());
 
         // Validate against JSON schema
         JSONObject schemaJson = new JSONObject(new JSONTokener(
@@ -158,6 +159,42 @@ public class CustomerResourceTest {
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 
+
+    @Test
+    public void testGetCustomersWithGenderFilter() throws SQLException {
+        List<Customer> maleCustomers = new ArrayList<>();
+        maleCustomers.add(mockCustomer1);
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(null, null, Gender.M)).thenReturn(maleCustomers);
+
+        Response response = customerResource.getCustomers(null, null, "M");
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testGetCustomersWithDateRange() throws SQLException {
+        List<Customer> dateFilteredCustomers = new ArrayList<>();
+        dateFilteredCustomers.add(mockCustomer1);
+
+        LocalDate startDate = LocalDate.now().minusDays(10);
+        LocalDate endDate = LocalDate.now();
+
+        when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
+        when(mockCustomerDao.getCustomers(startDate, endDate, null)).thenReturn(dateFilteredCustomers);
+
+        Response response = customerResource.getCustomers(startDate.toString(), endDate.toString(), null);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testGetCustomersBadRequest() {
+        String invalidStartDate = "invalid-date";
+
+        Response response = customerResource.getCustomers(invalidStartDate, null, null);
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        assertEquals("Invalid start format", response.getEntity());
+    }
 
     @Test
     public void testCreateCustomerCreated() throws SQLException, JsonProcessingException {

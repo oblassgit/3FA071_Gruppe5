@@ -15,12 +15,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 public class CustomerDaoTest {
 
@@ -43,19 +46,29 @@ public class CustomerDaoTest {
         customer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
 
         customerDao = new CustomerDao(databaseCon.getConnection());
-        customerDao.createCustomer(customer);
 
     }
 
     @Test
     public void testCreateCustomer() throws SQLException {
-        Customer newCustomer = new Customer(UUID.randomUUID(), "Oliver", "Blass", LocalDate.now(), Gender.M);
+        UUID uuid = UUID.randomUUID();
+        Customer newCustomer = new Customer(uuid, "Oliver", "Blass", LocalDate.now(), Gender.M);
+
+        System.out.println("Before insert: " + customerDao.getAllCustomers().size()); // Debug log
 
         customerDao.createCustomer(newCustomer);
+
+        int customerCount = customerDao.getAllCustomers().size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(1, customerCount);
+        assertNotNull(customerDao.getCustomer(uuid));
     }
 
     @Test
     public void testGetCustomer() throws SQLException {
+        customerDao.createCustomer(customer);
+
         assertEquals(customer.getId(), customerDao.getCustomer(customer.getId()).getId());
     }
 
@@ -78,6 +91,8 @@ public class CustomerDaoTest {
 
     @Test
     public void testUpdateCustomer() throws SQLException {
+        customerDao.createCustomer(customer);
+
         assertEquals(customerDao.getCustomer(customer.getId()).getGender(), Gender.M);
         Customer updatedCustomer = new Customer(customer.getId(), "Sigrid", "Blass", customer.getBirthDate(), Gender.W);
         customerDao.updateCustomer(updatedCustomer);
@@ -98,15 +113,85 @@ public class CustomerDaoTest {
     }
 
     @Test
+    public void testGetCustomersByDateRange() throws SQLException {
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        List<Customer> result = customerDao.getCustomers(LocalDate.of(1980, 1, 1), LocalDate.of(1989, 12, 31), null);
+
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.get(0).getId());
+    }
+
+    @Test
+    public void testGetCustomersByGender() throws SQLException {
+        Customer customer1 = new Customer(UUID.randomUUID(), "Alice", "Smith", LocalDate.of(1985, 5, 20), Gender.W);
+        Customer customer2 = new Customer(UUID.randomUUID(), "Bob", "Brown", LocalDate.of(1990, 7, 15), Gender.M);
+
+        customerDao.createCustomer(customer1);
+        customerDao.createCustomer(customer2);
+
+        List<Customer> result = customerDao.getCustomers(null, null, Gender.W);
+
+        assertEquals(1, result.size());
+        assertEquals(customer1.getId(), result.get(0).getId());
+    }
+
+    @Test
     public void testGetReadingsForCustomer() throws SQLException {
         Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0, "id", false);
-        
+
         ReadingDao readingDao = new ReadingDao(databaseCon.getConnection());
         readingDao.createReading(reading);
 
         customerDao.getReadingsForCustomer(customer);
         assertNotNull(customerDao.getReadingsForCustomer(customer));
         assertEquals(customerDao.getReadingsForCustomer(customer).size(), 1);
+    }
+
+    @Test
+    public void testImportCustomerDataWithUuid() throws SQLException {
+        UUID uuid = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
+
+        System.out.println("Before insert: " + customerDao.getCustomers(null, null, null).size()); // Debug log
+
+        Customer newCustomer = new Customer(uuid, "Bilbo", "Beutlin", LocalDate.now(), Gender.M);
+        Customer newCustomer2 = new Customer(uuid2, "Hans", "Wurst", LocalDate.now(), Gender.U);
+        List<Customer> list = new ArrayList<>();
+        list.add(newCustomer);
+        list.add(newCustomer2);
+
+        customerDao.importCustomerData(list);
+
+        int customerCount = customerDao.getCustomers(null, null, null).size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(2, customerCount);
+        assertNotNull(customerDao.getCustomer(uuid));
+    }
+
+    @Test
+    public void testImportCustomerDataWithoutUuid() throws SQLException {
+
+        System.out.println("Before insert: " + customerDao.getCustomers(null, null, null).size()); // Debug log
+
+        Customer newCustomer = new Customer(null, "Gandalf", "Der Graue", LocalDate.now(), Gender.M);
+        Customer newCustomer2 = new Customer(null, "Hans", "Wurst", LocalDate.now(), Gender.U);
+        List<Customer> list = new ArrayList<>();
+        list.add(newCustomer);
+        list.add(newCustomer2);
+
+        customerDao.importCustomerData(list);
+
+        int customerCount = customerDao.getCustomers(null, null, null).size();
+        System.out.println("After insert: " + customerCount); // Debug log
+
+        assertEquals(2, customerCount);
+        assertNotNull(customerDao.getCustomers(null, null, null).get(0));
     }
 
     @AfterAll

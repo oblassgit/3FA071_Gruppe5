@@ -120,19 +120,14 @@ public class CustomerDao {
 
             try (ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
-                    LocalDate dateOfCustomer = resultSet.getDate("birth_date").toLocalDate();
-                    Gender genderOfCustomer = Gender.valueOf(resultSet.getString("gender"));
-                    List<Customer> customerList = new ArrayList<>();
+                    Customer customer = new Customer();
+                    customer.setId(UUID.fromString(resultSet.getString("id")));
+                    customer.setFirstName(resultSet.getString("first_name"));
+                    customer.setLastName(resultSet.getString("last_name"));
+                    customer.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                    customer.setGender(Gender.valueOf(resultSet.getString("gender")));
 
-                    customerList = new CustomerDao(connection).getAllCustomers();
-                    for (Customer customer : customerList) {
-                        if (customer.getBirthDate().equals(dateOfCustomer) || customer.getGender().equals(genderOfCustomer)) {
-                            customers.add(customer);
-                        } else {
-                            continue;
-                        }
-                    }
-
+                    customers.add(customer);
                 }
             }
         }
