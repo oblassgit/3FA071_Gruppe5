@@ -215,4 +215,3 @@ public class CustomerDao {
 
 }
 
-//todo: api route und daten übergabe von frontend
