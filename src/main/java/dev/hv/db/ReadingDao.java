@@ -163,11 +163,15 @@ public class ReadingDao {
         // Start transaction
         connection.setAutoCommit(false); // Disable auto-commit to manage transaction manually
 
+        CustomerDao customerDao = new CustomerDao(connection);
         String query = "INSERT INTO reading (id, comment, customer_id, date_of_reading, meter_count, kind_of_meter, meter_id, substitute) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
 
             // Loop through the readings and set parameters for each insert
             for (Reading reading : readings) {
+                if(customerDao.getCustomer(reading.getCustomer().getId()) == null) {
+                    customerDao.createCustomer((Customer) reading.getCustomer());
+                }
                 //WIP
                 stmt.setString(1, reading.getId() == null ? UUID.randomUUID().toString() : reading.getId().toString());
                 stmt.setString( 2, reading.getComment() == null ? "" : reading.getComment());
