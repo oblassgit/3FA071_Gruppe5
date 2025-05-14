@@ -1,20 +1,24 @@
 package dev.hv.rest.resource;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import dev.hv.model.Customer;
 
-@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo
-        .Id.NAME)
-@JsonTypeName(value="customers")
-public class CustomerList extends ArrayList {
+public class CustomerList {
+    private List<Customer> customers;
+
+    public CustomerList() {} // Default constructor (important for Jackson)
 
     public CustomerList(List<Customer> customers) {
-        addAll(customers);
+        this.customers = customers;
     }
-    
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void addAll(List<Customer> customers) {
+        this.customers = customers;
+    }
 }
+

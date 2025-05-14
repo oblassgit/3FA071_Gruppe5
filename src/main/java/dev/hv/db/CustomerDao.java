@@ -177,4 +177,41 @@ public class CustomerDao {
         updateStatement.setString(5, customer.getId().toString());
         updateStatement.executeUpdate();
     }
+
+    public void importCustomerData(List<Customer> customers) throws SQLException {
+        // Start transaction
+        connection.setAutoCommit(false); // Disable auto-commit to manage transaction manually
+
+        String query = "INSERT INTO customer (id, first_name, last_name, birth_date, gender) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            // Loop through the customers and set parameters for each insert
+            for (Customer customer : customers) {
+                stmt.setObject(1, customer.getId() == null ? UUID.randomUUID() : customer.getId());
+                stmt.setString(2, customer.getFirstName());
+                stmt.setString(3, customer.getLastName());
+                stmt.setObject(4, customer.getBirthDate());  // Assuming birthDate is LocalDate and will be handled correctly
+                stmt.setString(5, customer.getGender().toString());
+
+                // Add the statement to the batch
+                stmt.addBatch();
+            }
+
+            // Execute the batch insert
+            stmt.executeBatch();
+
+            // Commit the transaction if all insertions succeed
+            connection.commit();
+        } catch (SQLException e) {
+            // Rollback the entire transaction if any error occurs
+            connection.rollback();
+            throw new SQLException("Failed to import customer data, rolling back transaction.", e);
+        } finally {
+            // Restore auto-commit mode and clean up resources
+            connection.setAutoCommit(true);
+        }
+    }
+
+
 }
+

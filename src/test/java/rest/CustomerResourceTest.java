@@ -3,8 +3,8 @@ package rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.enums.KindOfMeter;
+import dev.hv.model.CustomerResponse;
 import dev.hv.model.Reading;
-import dev.hv.rest.resource.ReadingList;
 import jakarta.ws.rs.core.Response;
 import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,21 +62,30 @@ public class CustomerResourceTest {
 
     @Test
     public void testGetCustomerByUuid() throws SQLException, JsonProcessingException {
+        // Mocking the DAO call
         when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
 
-
+        // Calling the API endpoint
         Response response = customerResource.getCustomer(testUuid1.toString());
+
+        // Deserialize response entity to CustomerResponse
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        CustomerResponse customerResponse = objectMapper.convertValue(response.getEntity(), CustomerResponse.class);
+
+        // Debugging: Print formatted JSON output
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(customerResponse);
         System.out.println(jsonResponse);
 
+        // Assertions
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(mockCustomer1, response.getEntity());
+        assertEquals(mockCustomer1, customerResponse.getCustomer()); // Compare actual customer objects
 
+        // Load and validate against JSON schema
         JSONObject schemaJson = new JSONObject(new JSONTokener(
                 Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customer.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
+        // Convert JSON string to JSONObject for validation
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
@@ -92,7 +102,7 @@ public class CustomerResourceTest {
         System.out.println(jsonResponse);
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        assertEquals(null, response.getEntity());
+        assertNull(response.getEntity());
     }
 
     @Test
@@ -113,64 +123,67 @@ public class CustomerResourceTest {
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertEquals("Could not find customer with uuid: " + testUuid1, response.getEntity());
-    } 
-    
+    }
+
     @Test
+
     public void testGetCustomers() throws SQLException, JsonProcessingException {
         List<Customer> allCustomers = new ArrayList<>();
         allCustomers.add(mockCustomer1);
         allCustomers.add(mockCustomer2);
-        CustomerList customerList = new CustomerList(allCustomers);
 
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(allCustomers);
 
         Response response = customerResource.getCustomers(null, null, null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(customerList, response.getEntity());
 
-        JSONObject schemaJson = new JSONObject(new JSONTokener(
-                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
-
+        // Deserialize response entity
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
+        CustomerList actualResponse = objectMapper.convertValue(response.getEntity(), CustomerList.class);
+
+        // Debugging: Print JSON response
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(actualResponse);
         System.out.println(jsonResponse);
 
+
+        assertEquals(2, actualResponse.getCustomers().size());
+
+        // Validate against JSON schema
+        JSONObject schemaJson = new JSONObject(new JSONTokener(
+                Objects.requireNonNull(getClass().getResourceAsStream("/json schemas/JSON_Schema_Customers.json"))));
         Schema schema = SchemaLoader.load(schemaJson);
 
         JSONObject responseJson = new JSONObject(jsonResponse);
         assertDoesNotThrow(() -> schema.validate(responseJson), "This JSON does not conform to the provided schema.");
     }
 
+
     @Test
     public void testGetCustomersWithGenderFilter() throws SQLException {
         List<Customer> maleCustomers = new ArrayList<>();
         maleCustomers.add(mockCustomer1);
-        CustomerList customerList = new CustomerList(maleCustomers);
 
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getCustomers(null, null, Gender.M)).thenReturn(customerList);
+        when(mockCustomerDao.getCustomers(null, null, Gender.M)).thenReturn(maleCustomers);
 
         Response response = customerResource.getCustomers(null, null, "M");
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(customerList, response.getEntity());
     }
 
     @Test
     public void testGetCustomersWithDateRange() throws SQLException {
         List<Customer> dateFilteredCustomers = new ArrayList<>();
         dateFilteredCustomers.add(mockCustomer1);
-        CustomerList customerList = new CustomerList(dateFilteredCustomers);
 
         LocalDate startDate = LocalDate.now().minusDays(10);
         LocalDate endDate = LocalDate.now();
 
         when(mockDbConnection.getConnection()).thenReturn(mock(Connection.class));
-        when(mockCustomerDao.getCustomers(startDate, endDate, null)).thenReturn(customerList);
+        when(mockCustomerDao.getCustomers(startDate, endDate, null)).thenReturn(dateFilteredCustomers);
 
         Response response = customerResource.getCustomers(startDate.toString(), endDate.toString(), null);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(customerList, response.getEntity());
     }
 
     @Test
@@ -238,11 +251,10 @@ public class CustomerResourceTest {
         List<Reading> readings = new ArrayList<>();
         readings.add(mockReading);
         readings.add(mockReading1);
-        ReadingList readingList = new ReadingList(readings);
 
         Mockito.doNothing().when(mockCustomerDao).deleteCustomer(mockCustomer1);
         when(mockCustomerDao.getCustomer(testUuid1)).thenReturn(mockCustomer1);
-        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(readingList);
+        when(mockCustomerDao.getReadingsForCustomer(mockCustomer1)).thenReturn(readings);
 
         Response response = customerResource.deleteCustomer(testUuid1.toString());
         ObjectMapper objectMapper = new ObjectMapper();

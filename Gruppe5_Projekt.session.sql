@@ -1,0 +1,1 @@
+INSERT INTO customer(id, first_name, last_name, birth_date, gender) VALUES("ef9c9f42-5cac-44bc-8390-2a4533bdee83", "fname", "lname", "2006-05-05", "M")
