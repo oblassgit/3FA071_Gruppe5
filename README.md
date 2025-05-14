@@ -6,16 +6,34 @@
 
 ## ✅ Testabdeckung
 
-[███████████████████████████████████████████████████░░░░░░░░░░░░░] 82%
+[███████████████████████████████████████████████████░░░░░░░░░░░░░] 80%
 
 ___
 
 ## 👌 How to get it Running!
 
+Die Datenbankeinstellungen:
+
+- Suche die File "DbData" unter "src/main/resources".
+- Koppiere die ersten 3 auskommentierten Zeilen und setze sie unter die schon bestehenden Benutzer ein.
+- Aktiviere sie indem die "#" entfernt werden.
+- Tausche den "User" durch deinen eingenen Benutzer aus.  
+  Hinweis: Öffne ein Terminal und benutze den Befehl "whoami" um den derzeitigen Benutzer herauszufinden.
+- nun Trage noch folgendes nach dem = ein:
+  
+           "deinBenutzer.db.url=" --> deine Datenbank URL nach dem =
+           "deinBenutzer.db.user=" --> dein Datenbank User nach dem =
+           "deinBenutzer.db.pw=" --> dein Passwort für die Datenbank nach dem =  
+
+das Programm starten:
+
 - Erster Step : Führe diesen Befehlt aus um das Backend zu starten -> "mvn clean compile exec:java".
 - Zweiter Step : Installiere NPM mit dem Befehlt  -> "npm install". 
 - Dritter Step : Führe diesen Befehl aus um das Backend zu starten -> "npm run preview".
 
+Fertig🤲
+
+Nun sollte die App unter dem Link aufrufbar sein, der im gleichen Terminal angezeigt wird.
 
 ## 🔧 Softwarearchitektur
 
