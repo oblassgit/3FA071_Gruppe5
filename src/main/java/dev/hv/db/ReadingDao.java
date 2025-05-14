@@ -169,10 +169,10 @@ public class ReadingDao {
 
             // Loop through the readings and set parameters for each insert
             for (Reading reading : readings) {
+                if(reading.getCustomer() == null) { throw new SQLException("Customer cannot be null!");}
                 if(customerDao.getCustomer(reading.getCustomer().getId()) == null) {
                     customerDao.createCustomer((Customer) reading.getCustomer());
                 }
-                //WIP
                 stmt.setString(1, reading.getId() == null ? UUID.randomUUID().toString() : reading.getId().toString());
                 stmt.setString( 2, reading.getComment() == null ? "" : reading.getComment());
                 stmt.setString(3, reading.getCustomer().getId().toString());
