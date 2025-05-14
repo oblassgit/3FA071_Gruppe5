@@ -235,7 +235,7 @@ public class ReadingResource {
             List<Reading> readings = readingDao.getReadings(null, null, null, null);
 
             // Write header
-            writer.write("id,comment,customerId,dateOfReading,kindOfMeter,meterCount,meterId,substitute\n");
+            writer.write("uuid,comment,customerId,dateOfReading,kindOfMeter,meterCount,meterId,substitute\n");
 
             // Write readings to CSV format
             for (Reading reading : readings) {
