@@ -19,6 +19,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -120,6 +121,22 @@ public class ReadingDaoTest {
         List<Reading> expectedReadings = List.of(reading0);
 
         assertEquals(expectedReadings, foundReadings);
+    }
+
+    @Test
+    public void testCreateReadings() throws SQLException {
+        Reading reading = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
+                "id", false);
+        Reading reading1 = new Reading(UUID.randomUUID(), "comment", customer, LocalDate.now(), KindOfMeter.STROM, 12.0,
+                "id", false);
+
+        List list = new ArrayList();
+        list.add(reading);
+        list.add(reading1);
+
+        readingDao.createReadings(list);
+        List readingsInDB = readingDao.getReadings(null, null, null, null);
+        assertEquals(2, readingsInDB.size());
     }
 
     @AfterAll

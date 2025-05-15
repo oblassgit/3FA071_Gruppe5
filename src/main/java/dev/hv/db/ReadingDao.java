@@ -159,7 +159,7 @@ public class ReadingDao {
         return readings;
     }
 
-    public void importReadingData(List<Reading> readings) throws SQLException {
+    public void createReadings(List<Reading> readings) throws SQLException {
         // Start transaction
         connection.setAutoCommit(false); // Disable auto-commit to manage transaction manually
 

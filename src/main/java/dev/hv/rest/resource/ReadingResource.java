@@ -273,7 +273,7 @@ public class ReadingResource {
         System.out.println("import called");
 
         try {
-            readingDao.importReadingData(readingList.getReadings());
+            readingDao.createReadings(readingList.getReadings());
         } catch (SQLException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
