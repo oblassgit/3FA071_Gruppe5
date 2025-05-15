@@ -10,7 +10,7 @@
 
 ___
 
-## 👌 How to get it Running!
+## Deployment-Anleitung
 
 Die Datenbankeinstellungen:
 
