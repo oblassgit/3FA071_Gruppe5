@@ -1,11 +1,11 @@
 package dev.hv.model;
 
-public class ReadingResponse {
+public class ReadingWrapper {
     private Reading reading;
 
-    public ReadingResponse() {}
+    public ReadingWrapper() {}
 
-    public ReadingResponse (Reading reading) {
+    public ReadingWrapper(Reading reading) {
         this.reading = reading;
     }
 

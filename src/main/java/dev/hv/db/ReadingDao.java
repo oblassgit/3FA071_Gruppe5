@@ -72,7 +72,7 @@ public class ReadingDao {
     }
 
     public void updateReading(Reading reading) throws SQLException {
-        updateStatement.setString(1, reading.getComment());
+        updateStatement.setString(1, reading.getComment() == null ? "" : reading.getComment());
         updateStatement.setString(2, reading.getCustomer().getId().toString());
         updateStatement.setDate(3, Date.valueOf(reading.getDateOfReading()));
         updateStatement.setString(4, reading.getKindOfMeter().toString());
