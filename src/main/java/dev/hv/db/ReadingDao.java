@@ -122,11 +122,11 @@ public class ReadingDao {
             parameters.add(kindOfMeter.name());
         }
         if (startDate != null) {
-            queryBuilder.append(" AND date_of_reading > ?");
+            queryBuilder.append(" AND date_of_reading >= ?");
             parameters.add(Date.valueOf(startDate));
         }
         if (endDate != null) {
-            queryBuilder.append(" AND date_of_reading < ?");
+            queryBuilder.append(" AND date_of_reading <= ?");
             parameters.add(Date.valueOf(endDate));
         }
 
