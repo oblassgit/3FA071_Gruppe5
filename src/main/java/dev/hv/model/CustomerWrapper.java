@@ -1,13 +1,12 @@
 package dev.hv.model;
 
-public class CustomerResponse {
-
+public class CustomerWrapper {
 
     private Customer customer;
 
-    public CustomerResponse() {}
+    public CustomerWrapper() {}
 
-    public CustomerResponse (Customer customer) {
+    public CustomerWrapper(Customer customer) {
         this.customer = customer;
     }
 

@@ -8,7 +8,7 @@ import dev.hv.db.CustomerDao;
 import dev.hv.db.DatabaseCon;
 import dev.hv.enums.Gender;
 import dev.hv.model.Customer;
-import dev.hv.model.CustomerResponse;
+import dev.hv.model.CustomerWrapper;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -109,7 +109,7 @@ public class CustomerResource {
         }
 
         //Customer customer = new Customer(UUID.randomUUID(), "Hans", "Wurst", LocalDate.now(), Gender.M);
-        return Response.ok(new CustomerResponse(customer)).build();
+        return Response.ok(new CustomerWrapper(customer)).build();
     }
 
     @Path("/{uuid}")
@@ -154,8 +154,9 @@ public class CustomerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createCustomer(Customer customer) {
+    public Response createCustomer(CustomerWrapper customerWrapper) {
 
+        Customer customer = customerWrapper.getCustomer();
 
         databaseCon.openConnections(util.getProperties());
 
@@ -170,15 +171,16 @@ public class CustomerResource {
         }
 
         return Response.status(Response.Status.CREATED)
-                .entity(new CustomerResponse(customer))
+                .entity(new CustomerWrapper(customer))
                 .build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response updateCustomer(Customer customer) {
+    public Response updateCustomer(CustomerWrapper customerWrapper) {
 
+        Customer customer = customerWrapper.getCustomer();
         databaseCon.openConnections(util.getProperties());
 
         if (customer.getId() != null) {

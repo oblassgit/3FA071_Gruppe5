@@ -3,7 +3,7 @@ package rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.hv.enums.KindOfMeter;
-import dev.hv.model.CustomerResponse;
+import dev.hv.model.CustomerWrapper;
 import dev.hv.model.Reading;
 import jakarta.ws.rs.core.Response;
 import dev.hv.db.CustomerDao;
@@ -70,15 +70,15 @@ public class CustomerResourceTest {
 
         // Deserialize response entity to CustomerResponse
         ObjectMapper objectMapper = new ObjectMapper();
-        CustomerResponse customerResponse = objectMapper.convertValue(response.getEntity(), CustomerResponse.class);
+        CustomerWrapper customerWrapper = objectMapper.convertValue(response.getEntity(), CustomerWrapper.class);
 
         // Debugging: Print formatted JSON output
-        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(customerResponse);
+        String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(customerWrapper);
         System.out.println(jsonResponse);
 
         // Assertions
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(mockCustomer1, customerResponse.getCustomer()); // Compare actual customer objects
+        assertEquals(mockCustomer1, customerWrapper.getCustomer()); // Compare actual customer objects
 
         // Load and validate against JSON schema
         JSONObject schemaJson = new JSONObject(new JSONTokener(
@@ -109,7 +109,7 @@ public class CustomerResourceTest {
     public void testUpdateCustomerOk() throws SQLException {
         Mockito.doNothing().when(mockCustomerDao).updateCustomer(mockCustomer1);
 
-        Response response = customerResource.updateCustomer(mockCustomer1);
+        Response response = customerResource.updateCustomer(new CustomerWrapper(mockCustomer1));
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("Customer with uuid: " + testUuid1 + " was updated.", response.getEntity());
@@ -119,7 +119,7 @@ public class CustomerResourceTest {
     public void testUpdateCustomerNotFound() throws SQLException, JsonProcessingException {
         Mockito.doThrow(new SQLException()).when(mockCustomerDao).updateCustomer(mockCustomer1);
 
-        Response response = customerResource.updateCustomer(mockCustomer1);
+        Response response = customerResource.updateCustomer(new CustomerWrapper(mockCustomer1));
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
         assertEquals("Could not find customer with uuid: " + testUuid1, response.getEntity());
@@ -199,7 +199,7 @@ public class CustomerResourceTest {
     public void testCreateCustomerCreated() throws SQLException, JsonProcessingException {
         Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomer1);
 
-        Response response = customerResource.createCustomer(mockCustomer1);
+        Response response = customerResource.createCustomer(new CustomerWrapper(mockCustomer1));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
@@ -218,7 +218,7 @@ public class CustomerResourceTest {
     public void testCustomerWithoutIdCreated() throws SQLException, JsonProcessingException {
         Mockito.doNothing().when(mockCustomerDao).createCustomer(mockCustomerNoId);
 
-        Response response = customerResource.createCustomer(mockCustomerNoId);
+        Response response = customerResource.createCustomer(new CustomerWrapper(mockCustomerNoId));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getEntity());
@@ -237,7 +237,7 @@ public class CustomerResourceTest {
     public void testCreateCustomerBadRequest() throws SQLException, JsonProcessingException {
         Mockito.doThrow(new SQLException()).when(mockCustomerDao).createCustomer(mockCustomer1);
 
-        Response response = customerResource.createCustomer(mockCustomer1);
+        Response response = customerResource.createCustomer(new CustomerWrapper(mockCustomer1));
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 

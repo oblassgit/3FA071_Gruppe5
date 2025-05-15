@@ -8,7 +8,7 @@ import dev.hv.db.ReadingDao;
 import dev.hv.enums.KindOfMeter;
 import dev.hv.model.Customer;
 import dev.hv.model.Reading;
-import dev.hv.model.ReadingResponse;
+import dev.hv.model.ReadingWrapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -71,7 +71,7 @@ public class ReadingResource {
             return Response.serverError().build();
         }
 
-        return Response.ok(new ReadingResponse(reading)).build();
+        return Response.ok(new ReadingWrapper(reading)).build();
     }
 
     @Path("/{uuid}")
@@ -96,13 +96,15 @@ public class ReadingResource {
         } catch (SQLException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
-        return Response.ok(new ReadingResponse(reading)).build();
+        return Response.ok(new ReadingWrapper(reading)).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createReading(Reading input) {
+    public Response createReading(ReadingWrapper wrappedReading) {
+        Reading input = wrappedReading.getReading();
+
         if (input == null || input.getCustomer() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Invalid body.").build();
         }
@@ -124,7 +126,7 @@ public class ReadingResource {
 
             readingDao.createReading(input);
 
-            return Response.status(Response.Status.CREATED).entity(new ReadingResponse(input)).build();
+            return Response.status(Response.Status.CREATED).entity(new ReadingWrapper(input)).build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -134,15 +136,17 @@ public class ReadingResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response updateReading(Reading input) {
+    public Response updateReading(ReadingWrapper wrappedReading) {
+        Reading reading = wrappedReading.getReading();
+
         databaseCon.getConnection();
-        if (input.getId() != null) {
+        if (reading.getId() != null) {
             try {
-                readingDao.updateReading(input);
-                return Response.ok().entity("Reading with uuid: " + input.getId() + " was updated.").build();
+                readingDao.updateReading(reading);
+                return Response.ok().entity("Reading with uuid: " + reading.getId() + " was updated.").build();
             } catch (SQLException e) {
                 return Response.status(Response.Status.NOT_FOUND)
-                        .entity("Could not find reading with uuid : " + input.getId()).build();
+                        .entity("Could not find reading with uuid : " + reading.getId()).build();
 
             }
         } else

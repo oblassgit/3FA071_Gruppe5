@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import dev.hv.db.CustomerDao;
+import dev.hv.model.ReadingWrapper;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
@@ -110,7 +111,7 @@ public class ReadingResourceTest {
                                 "1", true);
                 Mockito.doNothing().when(mockReadingDao).createReading(reading);
 
-                Response response = readingResource.createReading(reading);
+                Response response = readingResource.createReading(new ReadingWrapper(reading));
                 ObjectMapper objectMapper = new ObjectMapper();
                 String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
                                 .writeValueAsString(response.getEntity());
@@ -135,7 +136,7 @@ public class ReadingResourceTest {
                         "1", true);
                 Mockito.doThrow(new SQLException()).when(mockReadingDao).createReading(reading);
 
-                Response response = readingResource.createReading(reading);
+                Response response = readingResource.createReading(new ReadingWrapper(reading));
 
                 assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         }
@@ -150,7 +151,7 @@ public class ReadingResourceTest {
                 Mockito.doNothing().when(mockReadingDao).createReading(reading);
                 Mockito.doNothing().when(mockCustomerDao).createCustomer(customer);
 
-                Response response = readingResource.createReading(reading);
+                Response response = readingResource.createReading(new ReadingWrapper(reading));
                 ObjectMapper objectMapper = new ObjectMapper();
                 String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(response.getEntity());
@@ -174,7 +175,7 @@ public class ReadingResourceTest {
                 Reading reading = new Reading(UUID.randomUUID(), "test", null, LocalDate.now(), KindOfMeter.HEIZUNG, 2.0, "1", true);
 
                 // Call the createReading method
-                Response response = readingResource.createReading(reading);
+                Response response = readingResource.createReading(new ReadingWrapper(reading));
 
                 // Check that the response status is BAD_REQUEST
                 assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
@@ -214,7 +215,7 @@ public class ReadingResourceTest {
 
                 Mockito.doNothing().when(mockReadingDao).updateReading(mockReading);
 
-                Response response = readingResource.updateReading(mockReading);
+                Response response = readingResource.updateReading(new ReadingWrapper(mockReading));
 
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
                 assertEquals("Reading with uuid: " + mockReadingUuid + " was updated.", response.getEntity());
@@ -228,7 +229,7 @@ public class ReadingResourceTest {
 
                 Mockito.doThrow(new SQLException()).when(mockReadingDao).updateReading(mockReading);
 
-                Response response = readingResource.updateReading(mockReading);
+                Response response = readingResource.updateReading(new ReadingWrapper(mockReading));
 
                 assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
                 assertEquals("Could not find reading with uuid : " + mockReadingUuid, response.getEntity());
@@ -240,7 +241,7 @@ public class ReadingResourceTest {
                                 KindOfMeter.WASSER, 2.5, "12345", false);
                 Mockito.doThrow(new SQLException()).when(mockReadingDao).updateReading(mockReading);
 
-                Response response = readingResource.updateReading(mockReading);
+                Response response = readingResource.updateReading(new ReadingWrapper(mockReading));
 
                 assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
                 assertEquals("Please provide a valid uuid!", response.getEntity());
