@@ -46,10 +46,10 @@ public class DatabaseConTest {
         Customer customer = new Customer(UUID.randomUUID(), "Peter", "Griffon", LocalDate.now(), Gender.M);
         CustomerDao customerDao = new CustomerDao(dbCon.getConnection());
         customerDao.createCustomer(customer);
-        assertTrue(customerDao.getAllCustomers().size() > 0);
+        assertTrue(customerDao.getCustomers(null, null, null).size() > 0);
 
         dbCon.truncateAllTables();
-        assertEquals(customerDao.getAllCustomers().size(), 0);
+        assertEquals(customerDao.getCustomers(null, null, null).size(), 0);
 
         dbCon.removeAllTables();
         resultSet = statement.executeQuery();

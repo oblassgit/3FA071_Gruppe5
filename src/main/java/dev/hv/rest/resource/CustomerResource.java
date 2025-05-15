@@ -206,7 +206,7 @@ public class CustomerResource {
             CsvMapper csvMapper = new CsvMapper();
             CsvSchema schema = csvMapper.schemaFor(Customer.class).withHeader();
             StringWriter writer = new StringWriter();
-            csvMapper.writer(schema).writeValue(writer, customerDao.getAllCustomers());
+            csvMapper.writer(schema).writeValue(writer, customerDao.getCustomers(null, null, null));
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.csv\"")
@@ -225,7 +225,7 @@ public class CustomerResource {
         try {
             XmlMapper xmlMapper = new XmlMapper();
             StringWriter writer = new StringWriter();
-            xmlMapper.writeValue(writer, customerDao.getAllCustomers());
+            xmlMapper.writeValue(writer, customerDao.getCustomers(null, null, null));
 
             return Response.ok(writer.toString())
                     .header("Content-Disposition", "attachment; filename=\"data.xml\"")
