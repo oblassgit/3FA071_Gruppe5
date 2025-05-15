@@ -135,24 +135,6 @@ public class CustomerDao {
         return customers;
     }
 
-    public List<Customer> getAllCustomers() throws SQLException {
-        ResultSet countResultSet = countStatement.executeQuery();
-        if (!countResultSet.next()) {
-            return new ArrayList<>(0);
-        }
-
-        ResultSet resultSet = selectStatement.executeQuery();
-        ArrayList<Customer> list = new ArrayList<>(countResultSet.getInt("count"));
-
-        while (resultSet.next()) {
-            list.add(new Customer(UUID.fromString(resultSet.getString("id")), resultSet.getString("first_name"),
-                    resultSet.getString("last_name"),
-                    resultSet.getDate("birth_date").toLocalDate(), Gender.valueOf(resultSet.getString("Gender"))));
-        }
-
-        return list;
-    }
-
     public List<Reading> getReadingsForCustomer(Customer customer) throws SQLException {
 
         getReadingsForCustomerStatement.setString(1, String.valueOf(customer.getId()));

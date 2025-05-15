@@ -54,11 +54,11 @@ public class CustomerDaoTest {
         UUID uuid = UUID.randomUUID();
         Customer newCustomer = new Customer(uuid, "Oliver", "Blass", LocalDate.now(), Gender.M);
 
-        System.out.println("Before insert: " + customerDao.getAllCustomers().size()); // Debug log
+        System.out.println("Before insert: " + customerDao.getCustomers(null, null, null).size()); // Debug log
 
         customerDao.createCustomer(newCustomer);
 
-        int customerCount = customerDao.getAllCustomers().size();
+        int customerCount = customerDao.getCustomers(null, null, null).size();
         System.out.println("After insert: " + customerCount); // Debug log
 
         assertEquals(1, customerCount);
@@ -86,7 +86,7 @@ public class CustomerDaoTest {
         customerDao.createCustomer(customer3);
         customerDao.createCustomer(customer4);
 
-        assertEquals(customerDao.getAllCustomers().size(), 4);
+        assertEquals(customerDao.getCustomers(null, null, null).size(), 4);
     }
 
     @Test

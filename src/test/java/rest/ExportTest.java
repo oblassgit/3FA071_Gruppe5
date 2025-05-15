@@ -76,7 +76,7 @@ public class ExportTest {
     // CSV TESTS
     @Test
     public void testCSVCustomerExportSuccess() throws SQLException {
-        when(mockCustomerDao.getAllCustomers()).thenReturn(customerList);
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
 
         Response response = customerResource.exportCSV();
 
@@ -91,7 +91,7 @@ public class ExportTest {
     @Test
     public void testCSVCustomerExportFailure() throws SQLException {
         // Simulate an exception when retrieving customers
-        when(mockCustomerDao.getAllCustomers()).thenThrow(new RuntimeException("Database error"));
+        when(mockCustomerDao.getCustomers(null, null, null)).thenThrow(new RuntimeException("Database error"));
 
         Response response = customerResource.exportCSV();
 
@@ -153,7 +153,7 @@ public class ExportTest {
 
     @Test
     void testXMLCustomerExportSuccess() throws SQLException {
-        when(mockCustomerDao.getAllCustomers()).thenReturn(customerList);
+        when(mockCustomerDao.getCustomers(null, null, null)).thenReturn(customerList);
 
         Response response = customerResource.exportXML();
 
@@ -167,7 +167,7 @@ public class ExportTest {
     @Test
     public void testXMLCustomerExportFailure() throws SQLException {
         // Simulate an exception when retrieving customers
-        when(mockCustomerDao.getAllCustomers()).thenThrow(new RuntimeException("Database error"));
+        when(mockCustomerDao.getCustomers(null, null, null)).thenThrow(new RuntimeException("Database error"));
 
         Response response = customerResource.exportXML();
 
